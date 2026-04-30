@@ -11,16 +11,12 @@ export default function CartSidebar() {
   const [cartOpen, setCartOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  const { cart , total  } = useCart();
+  const { cart, total } = useCart();
 
-
-const formattedTotal = total.toLocaleString("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
-});
-
-
-
+  const formattedTotal = total.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -37,19 +33,15 @@ const formattedTotal = total.toLocaleString("en-US", {
 
   return (
     <>
-      <Link href="/cart"
-        className="relative cursor-pointer"
-      
-      >
+      <Link href="/cart" className="relative cursor-pointer">
         <div className="flex relative gap-1">
-        
-					<p className=" max-md:hidden ">العربة</p>
+          <p className=" max-md:hidden ">العربة</p>
           <HiOutlineShoppingBag size={25} strokeWidth={1.3} />
-          {
-            cart.length>0 && (  <span className="absolute -top-2 -left-2  bg-red-500 rounded-full w-5 h-5 p-2 text-[0.9rem] flex items-center justify-center text-white">
-            {cart.length}
-          </span>)
-          }
+          {cart.length > 0 && (
+            <span className="absolute -top-2 -left-2  bg-red-500 rounded-full w-5 h-5 p-2 text-[0.9rem] flex items-center justify-center text-white">
+              {cart.length}
+            </span>
+          )}
         </div>
       </Link>
       <AnimatePresence>
@@ -88,7 +80,7 @@ const formattedTotal = total.toLocaleString("en-US", {
                 className="text-pro border  border-pro text-white py-2 rounded-lg  text-center mt-5 hover:bg-gray-50 transition"
                 onClick={() => setCartOpen(false)}
               >
-                  متابعة الي الشراء
+                متابعة الي الشراء
               </Link>
               <div className="flex items-center justify-between pt-2">
                 <h3 className="font-semibold">ملخص الطلبات</h3>
@@ -96,7 +88,7 @@ const formattedTotal = total.toLocaleString("en-US", {
                   <h4>المجموع الفرعي </h4>
                   <p className="font-bold">
                     {formattedTotal}
-                    <span>ريال</span>
+                    <span>ج.م</span>
                   </p>
                 </div>
               </div>
@@ -124,7 +116,9 @@ const formattedTotal = total.toLocaleString("en-US", {
                             {item.product.name}
                           </p>
                           <p className="text-lg text-gray-900 font-bold mt-4">
-                            <span className="font-normal text-sm me-2">ريال</span>
+                            <span className="font-normal text-sm me-2">
+                              ج.م
+                            </span>
                             {item.product.price}
                           </p>
                         </div>

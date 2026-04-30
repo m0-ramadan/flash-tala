@@ -54,13 +54,12 @@ export default function PriceSlider() {
             valueLabelDisplay="auto"
             getAriaLabel={() => "Price range"}
             getAriaValueText={(val) => `${val} `}
-        
           />
           <div className="flex justify-between text-sm font-medium text-gray-600 mb-2">
             <p>من</p>
-            <span>{value[1].toLocaleString()} ريال</span>
+            <span>{value[1].toLocaleString()} ج.م</span>
             <p>الي</p>
-            <span>{value[0].toLocaleString()} ريال</span>
+            <span>{value[0].toLocaleString()} ج.م</span>
           </div>
         </Box>
       </div>

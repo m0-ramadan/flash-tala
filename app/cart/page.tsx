@@ -470,11 +470,11 @@ function renderSelectedOptions(item: any) {
 
   // تجميع الخيارات حسب المجموعة
   const groupedSelections: Record<string, any[]> = {};
-  
-  selectedOptions.forEach(opt => {
+
+  selectedOptions.forEach((opt) => {
     const name = String(opt.option_name || "").trim();
     if (!name) return;
-    
+
     if (!groupedSelections[name]) {
       groupedSelections[name] = [];
     }
@@ -483,24 +483,34 @@ function renderSelectedOptions(item: any) {
 
   return (
     <div className="mt-3 space-y-2">
-      <p className="text-xs font-bold text-slate-700 mb-2">الخيارات المختارة:</p>
+      <p className="text-xs font-bold text-slate-700 mb-2">
+        الخيارات المختارة:
+      </p>
       {Object.entries(groupedSelections).map(([groupName, options]) => (
-        <div key={groupName} className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-          <p className="text-xs font-extrabold text-slate-800 mb-1">{groupName}:</p>
+        <div
+          key={groupName}
+          className="bg-slate-50 p-2 rounded-lg border border-slate-100"
+        >
+          <p className="text-xs font-extrabold text-slate-800 mb-1">
+            {groupName}:
+          </p>
           <div className="space-y-1">
             {options.map((opt, idx) => {
-              const isChild = groupName.includes("تفاصيل") || opt.option_name.includes("المستوى");
+              const isChild =
+                groupName.includes("تفاصيل") ||
+                opt.option_name.includes("المستوى");
               return (
-                <div 
+                <div
                   key={`${groupName}-${idx}`}
-                  className={`flex items-center justify-between text-xs ${isChild ? 'mr-3' : ''}`}
+                  className={`flex items-center justify-between text-xs ${isChild ? "mr-3" : ""}`}
                 >
                   <span className="font-medium text-slate-600">
-                    {isChild ? '↳ ' : '• '}{opt.option_value}
+                    {isChild ? "↳ " : "• "}
+                    {opt.option_value}
                   </span>
                   {Number(opt.additional_price) > 0 && (
                     <span className="text-amber-600 font-bold">
-                      + {Number(opt.additional_price).toFixed(2)} ريال
+                      + {Number(opt.additional_price).toFixed(2)} ج.م
                     </span>
                   )}
                 </div>
@@ -524,12 +534,14 @@ function renderHierarchicalOptions(item: any, productData: any) {
     const optionsMap = new Map();
 
     // أولاً: إيجاد الخيارات الرئيسية (التي لها أطفال)
-    selectedOptions.forEach(opt => {
+    selectedOptions.forEach((opt) => {
       const name = String(opt.option_name || "").trim();
       const value = String(opt.option_value || "").trim();
-      
+
       // البحث في product data عن هذا الخيار
-      const productOption = productData?.options?.find((o: any) => o.name === name);
+      const productOption = productData?.options?.find(
+        (o: any) => o.name === name,
+      );
       if (productOption) {
         const item = productOption.items?.find((i: any) => i.value === value);
         if (item?.children?.length > 0) {
@@ -538,23 +550,27 @@ function renderHierarchicalOptions(item: any, productData: any) {
             name,
             value,
             price: opt.additional_price,
-            children: []
+            children: [],
           });
         }
       }
     });
 
     // ثانياً: إضافة الأطفال
-    selectedOptions.forEach(opt => {
+    selectedOptions.forEach((opt) => {
       const name = String(opt.option_name || "").trim();
       const value = String(opt.option_value || "").trim();
-      
+
       // البحث إذا كان هذا الخيار طفل لأي خيار رئيسي
       let isChild = false;
       optionsMap.forEach((parent, parentName) => {
-        const productOption = productData?.options?.find((o: any) => o.name === parentName);
-        const parentItem = productOption?.items?.find((i: any) => i.value === parent.value);
-        
+        const productOption = productData?.options?.find(
+          (o: any) => o.name === parentName,
+        );
+        const parentItem = productOption?.items?.find(
+          (i: any) => i.value === parent.value,
+        );
+
         if (parentItem) {
           const findChild = (items: any[]): boolean => {
             for (const item of items) {
@@ -563,12 +579,12 @@ function renderHierarchicalOptions(item: any, productData: any) {
             }
             return false;
           };
-          
+
           if (findChild([parentItem])) {
             parent.children.push({
               name,
               value,
-              price: opt.additional_price
+              price: opt.additional_price,
             });
             isChild = true;
           }
@@ -581,7 +597,7 @@ function renderHierarchicalOptions(item: any, productData: any) {
           name,
           value,
           price: opt.additional_price,
-          children: []
+          children: [],
         });
       }
     });
@@ -593,18 +609,22 @@ function renderHierarchicalOptions(item: any, productData: any) {
 
   const renderTree = (nodes: any[], level: number = 0) => {
     return nodes.map((node, idx) => (
-      <div key={`${node.name}-${idx}`} className={`${level > 0 ? 'mr-4' : ''}`}>
-        <div className={`flex items-center justify-between py-1 ${level === 0 ? 'border-b border-slate-100' : ''}`}>
+      <div key={`${node.name}-${idx}`} className={`${level > 0 ? "mr-4" : ""}`}>
+        <div
+          className={`flex items-center justify-between py-1 ${level === 0 ? "border-b border-slate-100" : ""}`}
+        >
           <div className="flex items-center gap-1">
             {level > 0 && <span className="text-slate-400">↳</span>}
-            <span className={`${level === 0 ? 'font-bold text-slate-800' : 'text-slate-600'}`}>
-              {node.name}: 
+            <span
+              className={`${level === 0 ? "font-bold text-slate-800" : "text-slate-600"}`}
+            >
+              {node.name}:
             </span>
             <span className="font-medium text-slate-700">{node.value}</span>
           </div>
           {Number(node.price) > 0 && (
             <span className="text-xs font-bold text-amber-600">
-              + {Number(node.price).toFixed(2)} ريال
+              + {Number(node.price).toFixed(2)} ج.م
             </span>
           )}
         </div>
@@ -618,9 +638,7 @@ function renderHierarchicalOptions(item: any, productData: any) {
       <p className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
         <span>📋</span> ملخص الخيارات المختارة:
       </p>
-      <div className="space-y-1 text-xs">
-        {renderTree(optionTree)}
-      </div>
+      <div className="space-y-1 text-xs">{renderTree(optionTree)}</div>
     </div>
   );
 }
@@ -959,24 +977,24 @@ export default function CartPage() {
                           </Link>
                         </div>
 
-                 
                         {(item.image_design ||
                           draftById[item.cart_item_id]
                             ?.existing_design_url) && (
                           <div className="md:flex hidden w-24 h-20 bg-slate-100 md:rounded-2xl rounded-lg overflow-hidden border border-slate-200 relative group">
                             <div className="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 py-0.5 rounded z-10">
-                               {draftById[item.cart_item_id]?.existing_design_url && !item.image_design
-											? "معاينة"
-											: "التصميم"}
+                              {draftById[item.cart_item_id]
+                                ?.existing_design_url && !item.image_design
+                                ? "معاينة"
+                                : "التصميم"}
                             </div>
                             <Image
-                                width={220}
-                                height={160}
+                              width={220}
+                              height={160}
                               src={
                                 item.image_design
                                   ? item.image_design
-                                  : draftById[item.cart_item_id]?.existing_design_url ||
-                                    "/images/not.jpg"
+                                  : draftById[item.cart_item_id]
+                                      ?.existing_design_url || "/images/not.jpg"
                               }
                               alt="تصميم المرفوع"
                               className="w-full h-full object-cover"
@@ -1045,8 +1063,8 @@ export default function CartPage() {
 
                             <div className="mt-2 flex flex-wrap items-center gap-2">
                               <span className="text-sm font-extrabold text-slate-900">
-                              {item.line_total}
-                                <span className="text-xs">ريال</span>
+                                {item.line_total}
+                                <span className="text-xs">ج.م</span>
                               </span>
 
                               {item._real?.discount &&
@@ -1060,7 +1078,7 @@ export default function CartPage() {
                                             ?.original_unit_after_options,
                                         ),
                                       )}{" "}
-                                      ريال
+                                      ج.م
                                     </span>
                                     <span className="text-[11px] font-extrabold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                                       خصم
@@ -1087,14 +1105,14 @@ export default function CartPage() {
                             <div className="mt-2 text-xs text-gray-600">
                               {/* {item._real?.extras > 0 && (
 																<div className="mb-1">
-																	<span>الإضافات: +{money(n(item._real?.extras))} ريال (لكل قطعة)</span>
+																	<span>الإضافات: +{money(n(item._real?.extras))} ج.م (لكل قطعة)</span>
 																</div>
 															)} */}
                               {item._real?.one_time_extras > 0 && (
                                 <div>
                                   <span>
                                     رسوم تصميم: +
-                                    {money(n(item._real?.one_time_extras))} ريال
+                                    {money(n(item._real?.one_time_extras))} ج.م
                                     (مرة واحدة)
                                   </span>
                                 </div>
@@ -1151,11 +1169,9 @@ export default function CartPage() {
                             )}
                           </button> */}
                         </div>
-
-                       
                       </div>
                       <div className="absolute top-2 left-[-10px] md:left-0">
-                         <button
+                        <button
                           onClick={async () => {
                             const result = await Swal.fire({
                               title: "هل أنت متأكد؟",
@@ -1221,7 +1237,7 @@ export default function CartPage() {
 										<div className="flex items-center justify-between">
 											<span className="text-sm font-bold text-slate-700">الإجمالي لهذا المنتج:</span>
 											<span className="text-lg font-extrabold text-slate-900">
-												{money(n(item.formattedGrandTotal))} <span className="text-sm">ريال</span>
+												{money(n(item.formattedGrandTotal))} <span className="text-sm">ج.م</span>
 											</span>
 										</div>
 									</div> */}
@@ -1256,18 +1272,17 @@ export default function CartPage() {
 
             <h4 className="text-md font-extrabold text-pro my-5">ملخص الطلب</h4>
 
-        
-<TotalOrder
-  items_count={cartCount}
-  subtotal={backendSubtotal} // هذا هو subtotal من الـ API
-  total={backendTotal} // هذا هو total من الـ API (وليس currentTotal)
-  items={cart}
-  couponDiscount={couponDiscount}
-  couponNewTotal={couponNewTotal}
-  hasUnsavedChanges={Object.keys(draftById).length > 0}
-  unsavedChangesCount={Object.keys(draftById).length}
-  originalTotal={backendTotal}
-/>
+            <TotalOrder
+              items_count={cartCount}
+              subtotal={backendSubtotal} // هذا هو subtotal من الـ API
+              total={backendTotal} // هذا هو total من الـ API (وليس currentTotal)
+              items={cart}
+              couponDiscount={couponDiscount}
+              couponNewTotal={couponNewTotal}
+              hasUnsavedChanges={Object.keys(draftById).length > 0}
+              unsavedChangesCount={Object.keys(draftById).length}
+              originalTotal={backendTotal}
+            />
             <Button
               variant="contained"
               onClick={handleClick}
@@ -1301,64 +1316,74 @@ function getSocialValue(socialMedia: any, key: "whatsapp" | "email") {
 }
 // أضف هذه الدالة في بداية ملف cart/page.tsx (قبل StickerForm)
 // أضف هذه الدالة في بداية ملف cart/page.tsx (قبل StickerForm)
-async function uploadDesignImage(file: File, cartItemId?: number): Promise<string | null> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-  
+async function uploadDesignImage(
+  file: File,
+  cartItemId?: number,
+): Promise<string | null> {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+
   try {
     const formData = new FormData();
-    formData.append('image', file);
-    
+    formData.append("image", file);
+
     // إضافة cart_item_id إذا كان موجوداً
     if (cartItemId) {
-      formData.append('cart_item_id', String(cartItemId));
+      formData.append("cart_item_id", String(cartItemId));
     }
 
-    const response = await fetch('https://dashboard.talaaljazeera.com/api/v1/cart/upload-image', {
-      method: 'POST',
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      body: formData,
-    });
+    const response = await fetch(
+      "https://dashboard.talaaljazeera.com/api/v1/cart/upload-image",
+      {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: formData,
+      },
+    );
 
     // محاولة تحليل الاستجابة كـ JSON
     let responseData;
     try {
       responseData = await response.json();
     } catch (parseError) {
-      console.error('خطأ في تحليل استجابة الـ API:', parseError);
-      throw new Error('استجابة غير صالحة من الخادم');
+      console.error("خطأ في تحليل استجابة الـ API:", parseError);
+      throw new Error("استجابة غير صالحة من الخادم");
     }
 
     // التحقق من نجاح الطلب
     if (!response.ok) {
       // التحقق من وجود رسالة خطأ في الاستجابة
-      const errorMessage = responseData?.message || responseData?.error || 'فشل رفع الصورة';
+      const errorMessage =
+        responseData?.message || responseData?.error || "فشل رفع الصورة";
       throw new Error(errorMessage);
     }
 
     // التحقق من حالة الـ API (بعض الـ APIs ترجع status: false حتى مع 200 OK)
     if (responseData && responseData.status === false) {
-      throw new Error(responseData.message || 'فشل رفع الصورة');
+      throw new Error(responseData.message || "فشل رفع الصورة");
     }
 
     // محاولة الحصول على رابط الصورة من مسارات مختلفة حسب استجابة الـ API
-    const imageUrl = 
-      responseData?.url || 
-      responseData?.image_url || 
-      responseData?.path || 
+    const imageUrl =
+      responseData?.url ||
+      responseData?.image_url ||
+      responseData?.path ||
       responseData?.data?.url ||
       responseData?.data?.image_url ||
       responseData?.data?.path ||
       null;
 
     if (!imageUrl) {
-      console.warn('تم رفع الصورة ولكن لم يتم العثور على رابط الصورة في الاستجابة:', responseData);
+      console.warn(
+        "تم رفع الصورة ولكن لم يتم العثور على رابط الصورة في الاستجابة:",
+        responseData,
+      );
       // قد يكون الـ API يرجع بيانات مختلفة، يمكن إرجاع null أو محاولة استخراج الرابط بطريقة أخرى
     }
 
     return imageUrl;
-
   } catch (error) {
-    console.error('خطأ في رفع الصورة:', error);
+    console.error("خطأ في رفع الصورة:", error);
     // إعادة رمي الخطأ ليتم معالجته في المستوى الأعلى
     throw error;
   }
@@ -1376,13 +1401,15 @@ const StickerForm = forwardRef(function StickerForm(
 ) {
   const { updateCartItem, updateQuantity, refreshCart } = useCart();
   const { socialMedia } = useAppContext() as any;
-  
+
   const [size, setSize] = useState("اختر");
   const [color, setColor] = useState("اختر");
   const [material, setMaterial] = useState("اختر");
 
   const [optionGroups, setOptionGroups] = useState<Record<string, string>>({});
-  const [optionChildren, setOptionChildren] = useState<Record<string, string>>({});
+  const [optionChildren, setOptionChildren] = useState<Record<string, string>>(
+    {},
+  );
   const [printingMethod, setPrintingMethod] = useState("اختر");
   const [printLocations, setPrintLocations] = useState<string[]>([]);
 
@@ -1401,66 +1428,74 @@ const StickerForm = forwardRef(function StickerForm(
 
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const [existingDesignUrl, setExistingDesignUrl] = useState<string | null>(null);
+  const [existingDesignUrl, setExistingDesignUrl] = useState<string | null>(
+    null,
+  );
   const [designFile, setDesignFile] = useState<File | null>(null);
   const [designPreview, setDesignPreview] = useState<string | null>(null);
 
-  const [designSendMethod, setDesignSendMethod] = useState<"whatsapp" | "email" | "upload" | null>(null);
+  const [designSendMethod, setDesignSendMethod] = useState<
+    "whatsapp" | "email" | "upload" | null
+  >(null);
 
   const whatsappFromSocial = getSocialValue(socialMedia, "whatsapp");
   const emailFromSocial = getSocialValue(socialMedia, "email");
 
   // دالة للحصول على children لأي مستوى
- // دالة للحصول على children لأي مستوى
-const getChildrenForOption = useCallback(
-  (groupName: string, optionValue: string, level: number = 0) => {
-    if (!apiData || !apiData.options) return [];
+  // دالة للحصول على children لأي مستوى
+  const getChildrenForOption = useCallback(
+    (groupName: string, optionValue: string, level: number = 0) => {
+      if (!apiData || !apiData.options) return [];
 
-    const optionGroup = apiData.options.find(
-      (o: any) => o.name === groupName,
-    );
-    if (!optionGroup) return [];
+      const optionGroup = apiData.options.find(
+        (o: any) => o.name === groupName,
+      );
+      if (!optionGroup) return [];
 
-    // دالة مساعدة للبحث عن الخيار في العمق
-    const findItemWithValue = (items: any[], targetValue: string): any | null => {
-      for (const item of items) {
-        if (item.value === targetValue) {
-          return item;
+      // دالة مساعدة للبحث عن الخيار في العمق
+      const findItemWithValue = (
+        items: any[],
+        targetValue: string,
+      ): any | null => {
+        for (const item of items) {
+          if (item.value === targetValue) {
+            return item;
+          }
+          if (item.children && item.children.length > 0) {
+            const found = findItemWithValue(item.children, targetValue);
+            if (found) return found;
+          }
         }
-        if (item.children && item.children.length > 0) {
-          const found = findItemWithValue(item.children, targetValue);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
+        return null;
+      };
 
-    const foundItem = findItemWithValue(optionGroup.items || [], optionValue);
-    return foundItem?.children || [];
-  },
-  [apiData],
-);
+      const foundItem = findItemWithValue(optionGroup.items || [], optionValue);
+      return foundItem?.children || [];
+    },
+    [apiData],
+  );
 
   // دالة متكررة لعرض الـ children
   const renderOptionChildren = (
     groupName: string,
     parentValue: string,
     childrenItems: any[],
-    level: number = 0
+    level: number = 0,
   ) => {
     if (!childrenItems || childrenItems.length === 0) return null;
 
-    const parentKey = level === 0 
-      ? `${groupName}::${parentValue}`
-      : `${groupName}::${parentValue}::level-${level}`;
-    
+    const parentKey =
+      level === 0
+        ? `${groupName}::${parentValue}`
+        : `${groupName}::${parentValue}::level-${level}`;
+
     const currentChildValue = optionChildren?.[parentKey] || "اختر";
     const selectedChild = childrenItems.find(
-      (child: any) => child.value === currentChildValue
+      (child: any) => child.value === currentChildValue,
     );
 
     return (
-      <div key={parentKey} className={`mt-3 ${level > 0 ? 'mr-4' : ''}`}>
+      <div key={parentKey} className={`mt-3 ${level > 0 ? "mr-4" : ""}`}>
         <FormControl fullWidth size="small" required>
           <InputLabel>
             {childrenItems[0]?.name || `خيارات إضافية المستوى ${level + 1}`}
@@ -1469,13 +1504,13 @@ const getChildrenForOption = useCallback(
             value={currentChildValue}
             onChange={(e) => {
               const newValue = e.target.value as string;
-              
+
               // تحديث الـ child الحالي
               setOptionChildren((prev) => ({ ...prev, [parentKey]: newValue }));
-              
+
               // إزالة أي أطفال سابقة عند تغيير الخيار
               Object.keys(optionChildren).forEach((key) => {
-                if (key.startsWith(parentKey + '::')) {
+                if (key.startsWith(parentKey + "::")) {
                   setOptionChildren((prev) => {
                     const newChildren = { ...prev };
                     delete newChildren[key];
@@ -1483,10 +1518,12 @@ const getChildrenForOption = useCallback(
                   });
                 }
               });
-              
+
               markDirty();
             }}
-            label={childrenItems[0]?.name || `خيارات إضافية المستوى ${level + 1}`}
+            label={
+              childrenItems[0]?.name || `خيارات إضافية المستوى ${level + 1}`
+            }
             className="bg-white"
             displayEmpty
             renderValue={(selected) => {
@@ -1494,7 +1531,7 @@ const getChildrenForOption = useCallback(
                 return <em className="text-gray-400">اختر</em>;
               }
               const childItem = childrenItems.find(
-                (c: any) => c.value === selected
+                (c: any) => c.value === selected,
               );
               return (
                 <div className="flex items-center justify-between gap-3 w-full">
@@ -1543,24 +1580,29 @@ const getChildrenForOption = useCallback(
         </FormControl>
 
         {/* عرض الأطفال بشكل متكرر إذا كان الخيار المحدد يحتوي على أطفال */}
-        {selectedChild?.children && selectedChild.children.length > 0 && (
+        {selectedChild?.children &&
+          selectedChild.children.length > 0 &&
           renderOptionChildren(
             groupName,
             selectedChild.value,
             selectedChild.children,
-            level + 1
-          )
-        )}
+            level + 1,
+          )}
       </div>
     );
   };
 
-  const waText = encodeURIComponent(`مرحباً، لدي تصميم للمنتج رقم ${productId}${cartItemId ? ` - عنصر سلة: ${cartItemId}` : ""}`);
+  const waText = encodeURIComponent(
+    `مرحباً، لدي تصميم للمنتج رقم ${productId}${cartItemId ? ` - عنصر سلة: ${cartItemId}` : ""}`,
+  );
 
   const whatsappHref = useMemo(() => {
     if (!whatsappFromSocial) return null;
     if (/^https?:\/\//i.test(whatsappFromSocial)) {
-      if (/wa\.me\//i.test(whatsappFromSocial) && !/text=/i.test(whatsappFromSocial)) {
+      if (
+        /wa\.me\//i.test(whatsappFromSocial) &&
+        !/text=/i.test(whatsappFromSocial)
+      ) {
         const join = whatsappFromSocial.includes("?") ? "&" : "?";
         return `${whatsappFromSocial}${join}text=${waText}`;
       }
@@ -1574,7 +1616,7 @@ const getChildrenForOption = useCallback(
   const emailHref = useMemo(() => {
     if (!emailFromSocial) return null;
     return `mailto:${emailFromSocial}?subject=${encodeURIComponent("ملف تصميم")}&body=${encodeURIComponent(
-      `لدي تصميم للمنتج رقم ${productId}${cartItemId ? ` - عنصر سلة: ${cartItemId}` : ""}`
+      `لدي تصميم للمنتج رقم ${productId}${cartItemId ? ` - عنصر سلة: ${cartItemId}` : ""}`,
     )}`;
   }, [emailFromSocial, productId, cartItemId]);
 
@@ -1657,14 +1699,15 @@ const getChildrenForOption = useCallback(
         const validateChildren = (
           groupName: string,
           parentValue: string,
-          level: number = 0
+          level: number = 0,
         ) => {
           const children = getChildrenForOption(groupName, parentValue);
           if (children && children.length > 0) {
-            const parentKey = level === 0
-              ? `${groupName}::${parentValue}`
-              : `${groupName}::${parentValue}::level-${level}`;
-            
+            const parentKey =
+              level === 0
+                ? `${groupName}::${parentValue}`
+                : `${groupName}::${parentValue}::level-${level}`;
+
             const childValue = optionChildren?.[parentKey];
             if (!childValue || childValue === "اختر") {
               isValid = false;
@@ -1673,7 +1716,7 @@ const getChildrenForOption = useCallback(
 
             // التحقق من الأطفال التاليين
             const selectedChild = children.find(
-              (c: any) => c.value === childValue
+              (c: any) => c.value === childValue,
             );
             if (selectedChild?.children?.length > 0) {
               validateChildren(groupName, childValue, level + 1);
@@ -1742,7 +1785,7 @@ const getChildrenForOption = useCallback(
   // تحديث cartItem عند تغيير draft
   useEffect(() => {
     if (!cartItemId || !onOptionsChange) return;
-    
+
     onOptionsChange(cartItemId, {
       size,
       color,
@@ -1781,264 +1824,268 @@ const getChildrenForOption = useCallback(
   ]);
 
   // Prefill البيانات من cartItem
- // Prefill البيانات من cartItem - نسخة محدثة
-useEffect(() => {
-  setApiError(null);
-  setFormLoading(true);
+  // Prefill البيانات من cartItem - نسخة محدثة
+  useEffect(() => {
+    setApiError(null);
+    setFormLoading(true);
 
-  try {
-    if (!productData) throw new Error("لا توجد بيانات للمنتج");
-    setApiData(productData);
+    try {
+      if (!productData) throw new Error("لا توجد بيانات للمنتج");
+      setApiData(productData);
 
-    let out: Record<string, string> = {};
-    let childrenOut: Record<string, string> = {};
+      let out: Record<string, string> = {};
+      let childrenOut: Record<string, string> = {};
 
-    // تهيئة جميع المجموعات بـ "اختر"
-    if (Array.isArray(productData?.options)) {
-      productData.options.forEach((o: any) => {
-        const k = String(o.name || "").trim();
-        if (!k) return;
-        out[k] = "اختر";
-      });
-    }
-
-    const selected = safeParseSelectedOptions(cartSelectedOptionsRaw);
-    
-    // إنشاء خريطة للخيارات حسب الاسم لتسهيل الوصول
-    const selectedMap = new Map();
-    selected.forEach((opt: any) => {
-      selectedMap.set(opt.option_name, opt);
-    });
-
-    const cartSize = String(cartSizeRaw || "").trim();
-    const cartColor = String(cartColorRaw || "").trim();
-
-    // استرجاع طريقة الطباعة
-    let cartPrinting = "";
-    if (cartPrintingRaw) {
-      cartPrinting = String(cartPrintingRaw).trim();
-    }
-    if (!cartPrinting) {
-      const printingFromSel = selected.find(
-        (o) =>
-          String(o.option_name).trim() === "طريقة الطباعة" ||
-          String(o.option_name).toLowerCase().includes("طريقة"),
-      );
-      if (printingFromSel) {
-        cartPrinting = String(printingFromSel.option_value).trim();
+      // تهيئة جميع المجموعات بـ "اختر"
+      if (Array.isArray(productData?.options)) {
+        productData.options.forEach((o: any) => {
+          const k = String(o.name || "").trim();
+          if (!k) return;
+          out[k] = "اختر";
+        });
       }
-    }
-    if (
-      !cartPrinting &&
-      Array.isArray(productData?.printing_methods) &&
-      productData.printing_methods.length === 1
-    ) {
-      cartPrinting = String(
-        productData.printing_methods[0]?.name || "",
-      ).trim();
-    }
 
-    // استرجاع المادة
-    let cartMaterial = String(cartMaterialRaw?.name || "").trim();
-    if (!cartMaterial) {
-      const mid = n(cartMaterialIdRaw);
-      if (mid > 0 && Array.isArray(productData?.materials)) {
-        const matObj = productData.materials.find(
-          (m: any) => n(m?.id) === mid,
-        );
-        if (matObj?.name) cartMaterial = String(matObj.name).trim();
-      }
-    }
+      const selected = safeParseSelectedOptions(cartSelectedOptionsRaw);
 
-    const sizeFromSel = selected.find(
-      (o) => String(o.option_name).trim() === "المقاس",
-    )?.option_value;
-    const colorFromSel = selected.find(
-      (o) => String(o.option_name).trim() === "اللون",
-    )?.option_value;
-    const materialFromSel = selected.find(
-      (o) => String(o.option_name).trim() === "الخامة",
-    )?.option_value;
-
-    setSize(cartSize || (sizeFromSel ? String(sizeFromSel).trim() : "اختر"));
-    setColor(
-      cartColor || (colorFromSel ? String(colorFromSel).trim() : "اختر"),
-    );
-    setMaterial(
-      cartMaterial ||
-        (materialFromSel ? String(materialFromSel).trim() : "اختر"),
-    );
-    setPrintingMethod(cartPrinting || "اختر");
-
-    const tierQtyFromSel = selected.find(
-      (o) => String(o.option_name).trim() === "كمية المقاس",
-    )?.option_value;
-    const tierTotalFromSel = selected.find(
-      (o) => String(o.option_name).trim() === "سعر المقاس الإجمالي",
-    )?.option_value;
-
-    const qFromCart = n(cartQuantityRaw);
-    setSizeTierQty(
-      tierQtyFromSel ? n(tierQtyFromSel) : qFromCart > 0 ? qFromCart : null,
-    );
-    setSizeTierTotal(tierTotalFromSel ? n(tierTotalFromSel) : null);
-
-    // print locations: ids -> names
-    const locIds = safeParseIds(cartPrintLocationsRaw);
-    const locList = Array.isArray(productData?.print_locations)
-      ? productData.print_locations
-      : [];
-    const namesByIds = locIds
-      .map((id) => locList.find((x: any) => n(x?.id) === n(id))?.name)
-      .filter(Boolean)
-      .map((x: any) => String(x).trim());
-
-    setPrintLocations(Array.from(new Set(namesByIds)));
-
-    // دالة مساعدة للبحث عن الخيار في الهيكل المتداخل
-    const findOptionInStructure = (
-      groupName: string,
-      value: string,
-      items: any[]
-    ): { found: boolean; path: string[] } => {
-      for (const item of items) {
-        if (item.value === value) {
-          return { found: true, path: [value] };
-        }
-        if (item.children && item.children.length > 0) {
-          const result = findOptionInStructure(groupName, value, item.children);
-          if (result.found) {
-            return { found: true, path: [item.value, ...result.path] };
-          }
-        }
-      }
-      return { found: false, path: [] };
-    };
-
-    // معالجة الخيارات المتداخلة
-    if (Array.isArray(productData?.options)) {
-      // إنشاء خريطة للخيارات حسب القيمة
-      const valueToGroupMap = new Map();
-      
-      // بناء الخريطة
-      productData.options.forEach((group: any) => {
-        const groupName = group.name;
-        
-        const mapItems = (items: any[], parentPath: string[] = []) => {
-          items.forEach((item: any) => {
-            const fullPath = [...parentPath, item.value];
-            valueToGroupMap.set(item.value, {
-              groupName,
-              path: fullPath,
-              item
-            });
-            
-            if (item.children?.length > 0) {
-              mapItems(item.children, fullPath);
-            }
-          });
-        };
-        
-        mapItems(group.items || []);
-      });
-
-      // معالجة كل خيار من selected_options
-      const processedGroups = new Set();
-      
+      // إنشاء خريطة للخيارات حسب الاسم لتسهيل الوصول
+      const selectedMap = new Map();
       selected.forEach((opt: any) => {
-        const value = opt.option_value;
-        const valueInfo = valueToGroupMap.get(value);
-        
-        if (valueInfo) {
-          const { groupName, path } = valueInfo;
-          
-          // تعيين الخيار الرئيسي (أول عنصر في المسار)
-          if (!processedGroups.has(groupName)) {
-            out[groupName] = path[0];
-            processedGroups.add(groupName);
+        selectedMap.set(opt.option_name, opt);
+      });
+
+      const cartSize = String(cartSizeRaw || "").trim();
+      const cartColor = String(cartColorRaw || "").trim();
+
+      // استرجاع طريقة الطباعة
+      let cartPrinting = "";
+      if (cartPrintingRaw) {
+        cartPrinting = String(cartPrintingRaw).trim();
+      }
+      if (!cartPrinting) {
+        const printingFromSel = selected.find(
+          (o) =>
+            String(o.option_name).trim() === "طريقة الطباعة" ||
+            String(o.option_name).toLowerCase().includes("طريقة"),
+        );
+        if (printingFromSel) {
+          cartPrinting = String(printingFromSel.option_value).trim();
+        }
+      }
+      if (
+        !cartPrinting &&
+        Array.isArray(productData?.printing_methods) &&
+        productData.printing_methods.length === 1
+      ) {
+        cartPrinting = String(
+          productData.printing_methods[0]?.name || "",
+        ).trim();
+      }
+
+      // استرجاع المادة
+      let cartMaterial = String(cartMaterialRaw?.name || "").trim();
+      if (!cartMaterial) {
+        const mid = n(cartMaterialIdRaw);
+        if (mid > 0 && Array.isArray(productData?.materials)) {
+          const matObj = productData.materials.find(
+            (m: any) => n(m?.id) === mid,
+          );
+          if (matObj?.name) cartMaterial = String(matObj.name).trim();
+        }
+      }
+
+      const sizeFromSel = selected.find(
+        (o) => String(o.option_name).trim() === "المقاس",
+      )?.option_value;
+      const colorFromSel = selected.find(
+        (o) => String(o.option_name).trim() === "اللون",
+      )?.option_value;
+      const materialFromSel = selected.find(
+        (o) => String(o.option_name).trim() === "الخامة",
+      )?.option_value;
+
+      setSize(cartSize || (sizeFromSel ? String(sizeFromSel).trim() : "اختر"));
+      setColor(
+        cartColor || (colorFromSel ? String(colorFromSel).trim() : "اختر"),
+      );
+      setMaterial(
+        cartMaterial ||
+          (materialFromSel ? String(materialFromSel).trim() : "اختر"),
+      );
+      setPrintingMethod(cartPrinting || "اختر");
+
+      const tierQtyFromSel = selected.find(
+        (o) => String(o.option_name).trim() === "كمية المقاس",
+      )?.option_value;
+      const tierTotalFromSel = selected.find(
+        (o) => String(o.option_name).trim() === "سعر المقاس الإجمالي",
+      )?.option_value;
+
+      const qFromCart = n(cartQuantityRaw);
+      setSizeTierQty(
+        tierQtyFromSel ? n(tierQtyFromSel) : qFromCart > 0 ? qFromCart : null,
+      );
+      setSizeTierTotal(tierTotalFromSel ? n(tierTotalFromSel) : null);
+
+      // print locations: ids -> names
+      const locIds = safeParseIds(cartPrintLocationsRaw);
+      const locList = Array.isArray(productData?.print_locations)
+        ? productData.print_locations
+        : [];
+      const namesByIds = locIds
+        .map((id) => locList.find((x: any) => n(x?.id) === n(id))?.name)
+        .filter(Boolean)
+        .map((x: any) => String(x).trim());
+
+      setPrintLocations(Array.from(new Set(namesByIds)));
+
+      // دالة مساعدة للبحث عن الخيار في الهيكل المتداخل
+      const findOptionInStructure = (
+        groupName: string,
+        value: string,
+        items: any[],
+      ): { found: boolean; path: string[] } => {
+        for (const item of items) {
+          if (item.value === value) {
+            return { found: true, path: [value] };
           }
-          
-          // تعيين الأطفال إذا كان المسار أطول من 1
-          if (path.length > 1) {
-            // إنشاء المفاتيح للأطفال
-            let currentPath = path[0];
-            for (let i = 1; i < path.length; i++) {
-              const parentKey = i === 1 
-                ? `${groupName}::${currentPath}`
-                : `${groupName}::${currentPath}::level-${i-1}`;
-              
-              childrenOut[parentKey] = path[i];
-              currentPath = path[i];
+          if (item.children && item.children.length > 0) {
+            const result = findOptionInStructure(
+              groupName,
+              value,
+              item.children,
+            );
+            if (result.found) {
+              return { found: true, path: [item.value, ...result.path] };
             }
           }
-        } else {
-          // إذا لم نجد الخيار في الهيكل، نضيفه مباشرة
-          // هذا قد يحدث للخيارات التي ليس لها هيكل متداخل
-          const name = opt.option_name;
-          if (name && !out[name] && !name.includes("::")) {
-            // نتأكد أنه ليس خياراً للطفل
-            let isChild = false;
-            for (const key in childrenOut) {
-              if (childrenOut[key] === value) {
-                isChild = true;
-                break;
+        }
+        return { found: false, path: [] };
+      };
+
+      // معالجة الخيارات المتداخلة
+      if (Array.isArray(productData?.options)) {
+        // إنشاء خريطة للخيارات حسب القيمة
+        const valueToGroupMap = new Map();
+
+        // بناء الخريطة
+        productData.options.forEach((group: any) => {
+          const groupName = group.name;
+
+          const mapItems = (items: any[], parentPath: string[] = []) => {
+            items.forEach((item: any) => {
+              const fullPath = [...parentPath, item.value];
+              valueToGroupMap.set(item.value, {
+                groupName,
+                path: fullPath,
+                item,
+              });
+
+              if (item.children?.length > 0) {
+                mapItems(item.children, fullPath);
+              }
+            });
+          };
+
+          mapItems(group.items || []);
+        });
+
+        // معالجة كل خيار من selected_options
+        const processedGroups = new Set();
+
+        selected.forEach((opt: any) => {
+          const value = opt.option_value;
+          const valueInfo = valueToGroupMap.get(value);
+
+          if (valueInfo) {
+            const { groupName, path } = valueInfo;
+
+            // تعيين الخيار الرئيسي (أول عنصر في المسار)
+            if (!processedGroups.has(groupName)) {
+              out[groupName] = path[0];
+              processedGroups.add(groupName);
+            }
+
+            // تعيين الأطفال إذا كان المسار أطول من 1
+            if (path.length > 1) {
+              // إنشاء المفاتيح للأطفال
+              let currentPath = path[0];
+              for (let i = 1; i < path.length; i++) {
+                const parentKey =
+                  i === 1
+                    ? `${groupName}::${currentPath}`
+                    : `${groupName}::${currentPath}::level-${i - 1}`;
+
+                childrenOut[parentKey] = path[i];
+                currentPath = path[i];
               }
             }
-            if (!isChild) {
-              out[name] = value;
+          } else {
+            // إذا لم نجد الخيار في الهيكل، نضيفه مباشرة
+            // هذا قد يحدث للخيارات التي ليس لها هيكل متداخل
+            const name = opt.option_name;
+            if (name && !out[name] && !name.includes("::")) {
+              // نتأكد أنه ليس خياراً للطفل
+              let isChild = false;
+              for (const key in childrenOut) {
+                if (childrenOut[key] === value) {
+                  isChild = true;
+                  break;
+                }
+              }
+              if (!isChild) {
+                out[name] = value;
+              }
             }
           }
-        }
-      });
+        });
+      }
+
+      // design existing image
+      const imgDesign = cartImageDesignRaw ? String(cartImageDesignRaw) : null;
+      setExistingDesignUrl(imgDesign || null);
+
+      setDesignSendMethod("upload");
+
+      if (
+        imgDesign &&
+        Object.prototype.hasOwnProperty.call(out, "خدمة تصميم")
+      ) {
+        out["خدمة تصميم"] = "لدى تصميم";
+      }
+
+      setOptionGroups(out);
+      setOptionChildren(childrenOut);
+
+      setDesignFile(null);
+      if (designPreview) URL.revokeObjectURL(designPreview);
+      setDesignPreview(null);
+
+      setHasUnsavedChanges(false);
+      setShowSaveButton(false);
+      setSavedSuccessfully(false);
+
+      console.log("✅ Loaded options:", out);
+      console.log("✅ Loaded children:", childrenOut);
+    } catch (err: any) {
+      console.error("❌ خطأ في تحميل الخيارات:", err);
+      setApiError(err?.message || "حدث خطأ أثناء تحميل الخيارات");
+      setApiData(null);
+    } finally {
+      setFormLoading(false);
     }
-
-    // design existing image
-    const imgDesign = cartImageDesignRaw ? String(cartImageDesignRaw) : null;
-    setExistingDesignUrl(imgDesign || null);
-
-    setDesignSendMethod("upload");
-
-    if (
-      imgDesign &&
-      Object.prototype.hasOwnProperty.call(out, "خدمة تصميم")
-    ) {
-      out["خدمة تصميم"] = "لدى تصميم";
-    }
-
-    setOptionGroups(out);
-    setOptionChildren(childrenOut);
-
-    setDesignFile(null);
-    if (designPreview) URL.revokeObjectURL(designPreview);
-    setDesignPreview(null);
-
-    setHasUnsavedChanges(false);
-    setShowSaveButton(false);
-    setSavedSuccessfully(false);
-    
-    console.log("✅ Loaded options:", out);
-    console.log("✅ Loaded children:", childrenOut);
-    
-  } catch (err: any) {
-    console.error("❌ خطأ في تحميل الخيارات:", err);
-    setApiError(err?.message || "حدث خطأ أثناء تحميل الخيارات");
-    setApiData(null);
-  } finally {
-    setFormLoading(false);
-  }
-}, [
-  productData,
-  cartItemId,
-  cartSelectedOptionsRaw,
-  cartSizeRaw,
-  cartColorRaw,
-  cartMaterialRaw,
-  cartMaterialIdRaw,
-  cartPrintingRaw,
-  cartPrintLocationsRaw,
-  cartQuantityRaw,
-  cartImageDesignRaw,
-]);
+  }, [
+    productData,
+    cartItemId,
+    cartSelectedOptionsRaw,
+    cartSizeRaw,
+    cartColorRaw,
+    cartMaterialRaw,
+    cartMaterialIdRaw,
+    cartPrintingRaw,
+    cartPrintLocationsRaw,
+    cartQuantityRaw,
+    cartImageDesignRaw,
+  ]);
 
   useEffect(() => {
     if (!needSizeTier) {
@@ -2235,25 +2282,25 @@ useEffect(() => {
     groupName: string,
     optionValue: string,
     items: any[],
-    level: number = 0
+    level: number = 0,
   ): any[] => {
     const options: any[] = [];
     const item = items.find((i: any) => i.value === optionValue);
     if (!item) return options;
 
-    const parentKey = level === 0
-      ? `${groupName}::${optionValue}`
-      : `${groupName}::${optionValue}::level-${level}`;
-    
+    const parentKey =
+      level === 0
+        ? `${groupName}::${optionValue}`
+        : `${groupName}::${optionValue}::level-${level}`;
+
     const childValue = optionChildren?.[parentKey];
 
     if (childValue && childValue !== "اختر") {
-      const childItem = item.children?.find(
-        (c: any) => c.value === childValue
-      );
+      const childItem = item.children?.find((c: any) => c.value === childValue);
       if (childItem) {
         options.push({
-          option_name: childItem.name || `${groupName} - تفاصيل المستوى ${level + 1}`,
+          option_name:
+            childItem.name || `${groupName} - تفاصيل المستوى ${level + 1}`,
           option_value: childValue,
           additional_price: n(childItem.base_price),
         });
@@ -2264,7 +2311,7 @@ useEffect(() => {
             groupName,
             childValue,
             [childItem],
-            level + 1
+            level + 1,
           );
           options.push(...nextLevelOptions);
         }
@@ -2303,7 +2350,9 @@ useEffect(() => {
         : [];
       const selectedLocObjs = (printLocations || [])
         .map((name) =>
-          locList.find((l: any) => String(l.name).trim() === String(name).trim()),
+          locList.find(
+            (l: any) => String(l.name).trim() === String(name).trim(),
+          ),
         )
         .filter(Boolean);
 
@@ -2325,13 +2374,11 @@ useEffect(() => {
       Object.entries(optionGroups || {}).forEach(([group, value]) => {
         if (!value || value === "اختر") return;
 
-        const optionGroup = apiData.options?.find(
-          (o: any) => o.name === group
-        );
+        const optionGroup = apiData.options?.find((o: any) => o.name === group);
         if (!optionGroup) return;
 
         const mainItem = optionGroup.items?.find(
-          (item: any) => item.value === value
+          (item: any) => item.value === value,
         );
         if (!mainItem) return;
 
@@ -2344,11 +2391,7 @@ useEffect(() => {
 
         // إضافة جميع مستويات الأطفال
         if (mainItem.children?.length > 0) {
-          const childOptions = getAllChildrenOptions(
-            group,
-            value,
-            [mainItem]
-          );
+          const childOptions = getAllChildrenOptions(group, value, [mainItem]);
           selected_options.push(...childOptions);
         }
       });
@@ -2421,7 +2464,9 @@ useEffect(() => {
           uploadedImageUrl = await uploadDesignImage(designFile, cartItemId);
           toast.success("تم رفع الصورة بنجاح", { id: "upload-design" });
         } catch (error: any) {
-          toast.error(error.message || "فشل رفع الصورة", { id: "upload-design" });
+          toast.error(error.message || "فشل رفع الصورة", {
+            id: "upload-design",
+          });
           setSaving(false);
           return;
         }
@@ -2539,7 +2584,6 @@ useEffect(() => {
 
         setTimeout(() => setSavedSuccessfully(false), 2500);
       }
-
     } catch (error: any) {
       console.error("❌ خطأ في حفظ الخيارات:", error);
 
@@ -2551,7 +2595,6 @@ useEffect(() => {
       }
 
       toast.error(errorMessage);
-
     } finally {
       setSaving(false);
     }
@@ -3017,15 +3060,18 @@ useEffect(() => {
               </FormControl>
 
               {/* عرض جميع مستويات الأطفال بشكل متكرر */}
-              {children && children.length > 0 && currentValue !== "اختر" && (
-                renderOptionChildren(groupName, currentValue, children)
-              )}
+              {children &&
+                children.length > 0 &&
+                currentValue !== "اختر" &&
+                renderOptionChildren(groupName, currentValue, children)}
 
               {/* Design section مع جميع الخيارات */}
               {(groupName === "خدمة تصميم" || groupName === "خدمة التصميم") &&
                 showDesignSection && (
                   <div className="mt-3 md:rounded-2xl rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-sm font-extrabold text-slate-800">أرسل ملف التصميم عبر:</p>
+                    <p className="text-sm font-extrabold text-slate-800">
+                      أرسل ملف التصميم عبر:
+                    </p>
 
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {whatsappHref && (
@@ -3037,11 +3083,15 @@ useEffect(() => {
                           }}
                           className={[
                             "md:rounded-2xl rounded-lg border border-slate-200 bg-white p-4 hover:bg-slate-50 transition text-right",
-                            designSendMethod === "whatsapp" ? "ring-2 ring-green-500" : "",
+                            designSendMethod === "whatsapp"
+                              ? "ring-2 ring-green-500"
+                              : "",
                           ].join(" ")}
                         >
                           <p className="font-black text-slate-900">WhatsApp</p>
-                          <p className="text-xs text-slate-500 font-bold mt-1">إرسال عبر واتساب</p>
+                          <p className="text-xs text-slate-500 font-bold mt-1">
+                            إرسال عبر واتساب
+                          </p>
                         </button>
                       )}
 
@@ -3054,12 +3104,20 @@ useEffect(() => {
                           }}
                           className={[
                             "md:rounded-2xl rounded-lg border border-slate-200 bg-white p-4 hover:bg-slate-50 transition text-right",
-                            designSendMethod === "email" ? "ring-2 ring-blue-500" : "",
+                            designSendMethod === "email"
+                              ? "ring-2 ring-blue-500"
+                              : "",
                           ].join(" ")}
                         >
-                          <p className="font-black text-slate-900">📧 البريد الإلكتروني</p>
-                          <p className="text-xs text-blue-600 font-bold mt-1 font-mono">{emailFromSocial}</p>
-                          <p className="text-[10px] text-slate-400 mt-1">انقر للاختيار</p>
+                          <p className="font-black text-slate-900">
+                            📧 البريد الإلكتروني
+                          </p>
+                          <p className="text-xs text-blue-600 font-bold mt-1 font-mono">
+                            {emailFromSocial}
+                          </p>
+                          <p className="text-[10px] text-slate-400 mt-1">
+                            انقر للاختيار
+                          </p>
                         </button>
                       )}
 
@@ -3071,11 +3129,15 @@ useEffect(() => {
                         }}
                         className={[
                           "md:rounded-2xl rounded-lg border border-slate-200 bg-white p-4 hover:bg-slate-50 transition text-right",
-                          designSendMethod === "upload" ? "ring-2 ring-amber-300" : "",
+                          designSendMethod === "upload"
+                            ? "ring-2 ring-amber-300"
+                            : "",
                         ].join(" ")}
                       >
                         <p className="font-black text-slate-900">رفع الملف</p>
-                        <p className="text-xs text-slate-500 font-bold mt-1">رفع مباشر عبر الموقع</p>
+                        <p className="text-xs text-slate-500 font-bold mt-1">
+                          رفع مباشر عبر الموقع
+                        </p>
                       </button>
                     </div>
 
@@ -3089,8 +3151,12 @@ useEffect(() => {
                               📱
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-green-800">تم اختيار الإرسال عبر واتساب</p>
-                              <p className="text-xs text-green-600">انقر على الزر أدناه لفتح المحادثة</p>
+                              <p className="text-sm font-bold text-green-800">
+                                تم اختيار الإرسال عبر واتساب
+                              </p>
+                              <p className="text-xs text-green-600">
+                                انقر على الزر أدناه لفتح المحادثة
+                              </p>
                             </div>
                           </div>
                           <Link
@@ -3116,13 +3182,17 @@ useEffect(() => {
                               📧
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-blue-800">تم اختيار الإرسال عبر البريد الإلكتروني</p>
-                              <p className="text-xs text-blue-600 font-mono">{emailFromSocial}</p>
+                              <p className="text-sm font-bold text-blue-800">
+                                تم اختيار الإرسال عبر البريد الإلكتروني
+                              </p>
+                              <p className="text-xs text-blue-600 font-mono">
+                                {emailFromSocial}
+                              </p>
                             </div>
                           </div>
                           <Link
                             href={`mailto:${emailFromSocial}?subject=${encodeURIComponent("طلب تصميم")}&body=${encodeURIComponent(
-                              `السلام عليكم،\n\nلدي طلب تصميم للمنتج`
+                              `السلام عليكم،\n\nلدي طلب تصميم للمنتج`,
                             )}`}
                             className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white px-4 py-3 rounded-lg text-sm font-bold hover:bg-blue-700 transition"
                           >
@@ -3146,11 +3216,15 @@ useEffect(() => {
                               📎
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-amber-800">تم اختيار الرفع المباشر</p>
-                              <p className="text-xs text-amber-600">قم برفع ملف التصميم مباشرة</p>
+                              <p className="text-sm font-bold text-amber-800">
+                                تم اختيار الرفع المباشر
+                              </p>
+                              <p className="text-xs text-amber-600">
+                                قم برفع ملف التصميم مباشرة
+                              </p>
                             </div>
                           </div>
-                          
+
                           {/* Upload Card */}
                           <div className="relative">
                             <label
@@ -3171,14 +3245,16 @@ useEffect(() => {
                                   const file = e.target.files?.[0] ?? null;
                                   if (file) {
                                     handleDesignFileChange(file);
-                                    
+
                                     const reader = new FileReader();
                                     reader.onload = (e) => {
-                                      setDesignPreview(e.target?.result as string);
+                                      setDesignPreview(
+                                        e.target?.result as string,
+                                      );
                                       if (cartItemId) {
                                         localStorage.setItem(
                                           `design_temp_${cartItemId}`,
-                                          e.target?.result as string
+                                          e.target?.result as string,
                                         );
                                       }
                                     };
@@ -3192,8 +3268,12 @@ useEffect(() => {
                                   <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-lg mb-1">
                                     ⬆️
                                   </div>
-                                  <p className="text-xs font-bold text-slate-700">اختر ملف التصميم</p>
-                                  <p className="text-[10px] text-slate-500">PNG, JPG, PDF, AI, PSD, SVG</p>
+                                  <p className="text-xs font-bold text-slate-700">
+                                    اختر ملف التصميم
+                                  </p>
+                                  <p className="text-[10px] text-slate-500">
+                                    PNG, JPG, PDF, AI, PSD, SVG
+                                  </p>
                                 </>
                               ) : (
                                 <>
@@ -3201,7 +3281,9 @@ useEffect(() => {
                                     ✅
                                   </div>
                                   <p className="text-xs font-bold text-emerald-700">
-                                    {designFile ? designFile.name : "تم رفع التصميم"}
+                                    {designFile
+                                      ? designFile.name
+                                      : "تم رفع التصميم"}
                                   </p>
                                 </>
                               )}
@@ -3215,7 +3297,9 @@ useEffect(() => {
                                   setDesignFile(null);
                                   setDesignPreview(null);
                                   if (cartItemId) {
-                                    localStorage.removeItem(`design_temp_${cartItemId}`);
+                                    localStorage.removeItem(
+                                      `design_temp_${cartItemId}`,
+                                    );
                                   }
                                   if (onOptionsChange) {
                                     onOptionsChange(cartItemId!, {
@@ -3445,27 +3529,27 @@ function TotalOrder({
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  
+
   const formattedTotal = n(total).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  
+
   const formattedTax = n(taxAmount).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  
+
   const formattedTotalWithoutTax = n(totalWithoutTax).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  
+
   const formattedGrandTotal = n(totalWithShipping).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  
+
   const formattedCoupon = n(couponDiscount).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -3481,11 +3565,9 @@ function TotalOrder({
         <p className="font-semibold">المجموع الفرعي</p>
         <p className="font-semibold">
           {formattedSubtotal}
-          <span className="text-xs me-1">ريال</span>
+          <span className="text-xs me-1">ج.م</span>
         </p>
       </div> */}
-
-  
 
       {/* عرض خصم الكوبون إذا وجد */}
       {(n(couponDiscount) > 0 ||
@@ -3494,7 +3576,7 @@ function TotalOrder({
           <p className="text-emerald-800 font-semibold">خصم الكوبون</p>
           <p className="font-extrabold text-emerald-700">
             - {formattedCoupon}
-            <span className="text-xs me-1">ريال</span>
+            <span className="text-xs me-1">ج.م</span>
           </p>
         </div>
       )}
@@ -3508,7 +3590,7 @@ function TotalOrder({
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
-            <span className="text-xs me-1">ريال</span>
+            <span className="text-xs me-1">ج.م</span>
           </p>
         </div>
       )}
@@ -3518,7 +3600,7 @@ function TotalOrder({
         <p>ضريبة القيمة المضافة (15%)</p>
         <p className="font-semibold">
           {formattedTax}
-          <span className="text-xs me-1">ريال</span>
+          <span className="text-xs me-1">ج.م</span>
         </p>
       </div>
 
@@ -3527,7 +3609,7 @@ function TotalOrder({
         <p>الإجمالي بدون الضريبة</p>
         <p className="font-semibold">
           {formattedTotalWithoutTax}
-          <span className="text-xs me-1">ريال</span>
+          <span className="text-xs me-1">ج.م</span>
         </p>
       </div>
 
@@ -3540,12 +3622,11 @@ function TotalOrder({
         </div>
         <p className="text-lg text-pro font-bold">
           {formattedGrandTotal}
-          <span className="text-sm me-1">ريال</span>
+          <span className="text-sm me-1">ج.م</span>
         </p>
       </div>
 
       {/* إظهار رسالة إذا كان هناك تغييرات غير محفوظة */}
-    
     </div>
   );
 }

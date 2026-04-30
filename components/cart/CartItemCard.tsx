@@ -32,7 +32,7 @@ export default function CartItemCard({
   const [uploading, setUploading] = useState(false);
   const cartItemId = item.cart_item_id || item.id;
   const product = item.product || {};
-  
+
   // Parse selected options safely
   const selectedOptions = useMemo(() => {
     return parseSelectedOptions(item.selected_options);
@@ -41,7 +41,9 @@ export default function CartItemCard({
   // Check if item has size tiers
   const hasTierQty = useMemo(() => {
     const sizeName = String(item?.size || "").trim();
-    const sizeObj = product?.sizes?.find((s: any) => String(s.name).trim() === sizeName);
+    const sizeObj = product?.sizes?.find(
+      (s: any) => String(s.name).trim() === sizeName,
+    );
     return sizeObj?.tiers?.length > 0 && n(item?.quantity) > 0;
   }, [product?.sizes, item?.size, item?.quantity]);
 
@@ -52,9 +54,10 @@ export default function CartItemCard({
 
   // Check if design service is selected
   const hasDesignService = useMemo(() => {
-    return selectedOptions.some((opt: any) => 
-      opt.option_name?.includes("خدمة تصميم") && 
-      opt.option_value?.includes("لدى تصميم")
+    return selectedOptions.some(
+      (opt: any) =>
+        opt.option_name?.includes("خدمة تصميم") &&
+        opt.option_value?.includes("لدى تصميم"),
     );
   }, [selectedOptions]);
 
@@ -83,7 +86,10 @@ export default function CartItemCard({
       {/* Main Row */}
       <div className="flex flex-col md:flex-row gap-4">
         {/* Product Image */}
-        <Link href={`/product/${product.slug || product.id}`} className="shrink-0">
+        <Link
+          href={`/product/${product.slug || product.id}`}
+          className="shrink-0"
+        >
           <div className="w-24 h-20 bg-slate-100 md:rounded-2xl rounded-lg overflow-hidden border border-slate-200">
             <Image
               src={product.image || "/images/not.jpg"}
@@ -112,19 +118,21 @@ export default function CartItemCard({
               {/* Price */}
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="text-sm font-extrabold text-slate-900">
-                  {money(n(item.price_per_unit || item._unit || 0))} <span className="text-xs">ريال</span>
+                  {money(n(item.price_per_unit || item._unit || 0))}{" "}
+                  <span className="text-xs">ج.م</span>
                 </span>
 
-                {product.has_discount && n(product.price) > n(product.final_price) && (
-                  <>
-                    <span className="text-xs font-extrabold text-slate-500 line-through">
-                      {money(n(product.price))} ريال
-                    </span>
-                    <span className="text-[11px] font-extrabold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      خصم
-                    </span>
-                  </>
-                )}
+                {product.has_discount &&
+                  n(product.price) > n(product.final_price) && (
+                    <>
+                      <span className="text-xs font-extrabold text-slate-500 line-through">
+                        {money(n(product.price))} ج.م
+                      </span>
+                      <span className="text-[11px] font-extrabold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        خصم
+                      </span>
+                    </>
+                  )}
               </div>
 
               {/* Selected Options Summary */}
@@ -132,12 +140,13 @@ export default function CartItemCard({
                 <div className="mt-2 flex flex-wrap gap-2">
                   {selectedOptions.map((opt: any, idx: number) => {
                     // Handle both string and object formats
-                    const optionName = opt.option_name || opt.name || '';
+                    const optionName = opt.option_name || opt.name || "";
                     const optionValue = opt.option_value || opt.value || opt;
-                    const additionalPrice = opt.additional_price || opt.price || 0;
-                    
+                    const additionalPrice =
+                      opt.additional_price || opt.price || 0;
+
                     // Skip if it's just a string without proper structure
-                    if (typeof opt === 'string') {
+                    if (typeof opt === "string") {
                       return (
                         <span
                           key={idx}
@@ -147,7 +156,7 @@ export default function CartItemCard({
                         </span>
                       );
                     }
-                    
+
                     return (
                       <span
                         key={idx}
@@ -173,7 +182,9 @@ export default function CartItemCard({
 
             {/* Quantity Controls */}
             <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-3 border border-slate-200 md:rounded-2xl rounded-lg overflow-hidden ${hasTierQty ? "opacity-50 pointer-events-none" : ""}`}>
+              <div
+                className={`flex items-center gap-3 border border-slate-200 md:rounded-2xl rounded-lg overflow-hidden ${hasTierQty ? "opacity-50 pointer-events-none" : ""}`}
+              >
                 <button
                   onClick={() => handleQuantityChange(item.quantity + 1)}
                   disabled={hasTierQty}
