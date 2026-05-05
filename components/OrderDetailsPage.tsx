@@ -19,7 +19,13 @@ interface Props {
 }
 
 /** API TYPES (based on your response) */
-type OrderStatus = "pending" | "processing" | "delivering" | "completed" | "cancelled" | string;
+type OrderStatus =
+  | "pending"
+  | "processing"
+  | "delivering"
+  | "completed"
+  | "cancelled"
+  | string;
 type PaymentStatus = "pending" | "paid" | "failed" | string;
 
 type ApiUser = {
@@ -63,7 +69,7 @@ interface OrderData {
   status: OrderStatus;
   status_label: string; // e.g. "order.status.pending"
   total_amount: string; // "0.00"
-  formatted_total: string; // "0.00 ر.س"
+  formatted_total: string; // "0.00 ج.م"
   customer_name: string;
   customer_phone: string | null;
   shipping_address: string | null;
@@ -152,13 +158,25 @@ function statusUi(status: string) {
 function paymentUi(status_payment: string) {
   switch (status_payment) {
     case "paid":
-      return { label: "تم الدفع", cls: "bg-emerald-50 text-emerald-800 border-emerald-200" };
+      return {
+        label: "تم الدفع",
+        cls: "bg-emerald-50 text-emerald-800 border-emerald-200",
+      };
     case "pending":
-      return { label: "في انتظار الدفع", cls: "bg-amber-50 text-amber-800 border-amber-200" };
+      return {
+        label: "في انتظار الدفع",
+        cls: "bg-amber-50 text-amber-800 border-amber-200",
+      };
     case "failed":
-      return { label: "فشل الدفع", cls: "bg-rose-50 text-rose-800 border-rose-200" };
+      return {
+        label: "فشل الدفع",
+        cls: "bg-rose-50 text-rose-800 border-rose-200",
+      };
     default:
-      return { label: status_payment, cls: "bg-slate-50 text-slate-800 border-slate-200" };
+      return {
+        label: status_payment,
+        cls: "bg-slate-50 text-slate-800 border-slate-200",
+      };
   }
 }
 
@@ -254,21 +272,31 @@ export default function OrderDetailsPage({ orderId }: Props) {
   }, [apiToken, orderId, baseUrl]);
 
   const status = useMemo(() => statusUi(order?.status || ""), [order?.status]);
-  const pay = useMemo(() => paymentUi(order?.status_payment || ""), [order?.status_payment]);
+  const pay = useMemo(
+    () => paymentUi(order?.status_payment || ""),
+    [order?.status_payment],
+  );
 
   if (loading) return <Loading />;
 
   if (!order) {
     return (
-      <div className="min-h-[55vh] flex items-center justify-center px-4" dir="rtl">
+      <div
+        className="min-h-[55vh] flex items-center justify-center px-4"
+        dir="rtl"
+      >
         <div className="max-w-md w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="w-11 h-11 md:rounded-2xl rounded-lg bg-rose-50 flex items-center justify-center">
               <FiAlertTriangle className="text-rose-600" size={22} />
             </div>
             <div>
-              <p className="font-extrabold text-slate-900">لم يتم العثور على الطلب</p>
-              <p className="text-sm text-slate-600 mt-1">تأكد من رقم الطلب أو حاول مرة أخرى.</p>
+              <p className="font-extrabold text-slate-900">
+                لم يتم العثور على الطلب
+              </p>
+              <p className="text-sm text-slate-600 mt-1">
+                تأكد من رقم الطلب أو حاول مرة أخرى.
+              </p>
             </div>
           </div>
         </div>
@@ -276,7 +304,10 @@ export default function OrderDetailsPage({ orderId }: Props) {
     );
   }
 
-  const addressText = buildFullAddress(order.full_address, order.shipping_address);
+  const addressText = buildFullAddress(
+    order.full_address,
+    order.shipping_address,
+  );
 
   return (
     <div className="mb-16 w-full" dir="rtl">
@@ -284,30 +315,40 @@ export default function OrderDetailsPage({ orderId }: Props) {
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h3 className="text-slate-900 text-2xl font-extrabold">تفاصيل الطلب</h3>
+            <h3 className="text-slate-900 text-2xl font-extrabold">
+              تفاصيل الطلب
+            </h3>
 
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <Chip>
-                رقم الطلب: <span className="ms-1 text-slate-900">{order.order_number}</span>
+                رقم الطلب:{" "}
+                <span className="ms-1 text-slate-900">
+                  {order.order_number}
+                </span>
               </Chip>
 
               <Chip>
-                تاريخ الطلب: <span className="ms-1 text-slate-900">{order.created_at}</span>
+                تاريخ الطلب:{" "}
+                <span className="ms-1 text-slate-900">{order.created_at}</span>
               </Chip>
 
-              <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[12px] font-extrabold ${status.badge}`}>
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[12px] font-extrabold ${status.badge}`}
+              >
                 {status.icon}
-                {order.status_label && order.status_label !== "order.status.pending"
+                {order.status_label &&
+                order.status_label !== "order.status.pending"
                   ? order.status_label
                   : status.label}
               </span>
 
-              <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[12px] font-extrabold ${pay.cls}`}>
+              <span
+                className={`inline-flex items-center rounded-full border px-3 py-1 text-[12px] font-extrabold ${pay.cls}`}
+              >
                 {pay.label}
               </span>
             </div>
           </div>
- 
         </div>
 
         {/* Notes */}
@@ -332,41 +373,65 @@ export default function OrderDetailsPage({ orderId }: Props) {
           {/* Items Card */}
           <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <p className="text-slate-900 font-extrabold text-lg">محتويات الطلب</p>
+              <p className="text-slate-900 font-extrabold text-lg">
+                محتويات الطلب
+              </p>
               <Chip>{order.items?.length ?? 0} منتج</Chip>
             </div>
 
             <div className="mt-4 space-y-3">
               {order.items.map((item, index) => {
                 const subtotal = calcItemSubtotal(item.price, item.quantity);
-                const opts: ParsedOption[] = Array.isArray(item.options) ? item.options : [];
+                const opts: ParsedOption[] = Array.isArray(item.options)
+                  ? item.options
+                  : [];
 
                 // best image
                 const img =
                   item?.product?.image ||
-                  (item?.product as any)?.images?.find?.((x: any) => x?.path)?.path ||
+                  (item?.product as any)?.images?.find?.((x: any) => x?.path)
+                    ?.path ||
                   "/images/not.jpg";
 
                 return (
-                  <div key={index} className="md:rounded-2xl rounded-lg border border-slate-200 p-4">
+                  <div
+                    key={index}
+                    className="md:rounded-2xl rounded-lg border border-slate-200 p-4"
+                  >
                     <div className="flex gap-4">
                       <div className="relative w-[92px] h-[92px] md:rounded-2xl rounded-lg overflow-hidden bg-slate-100 ring-1 ring-slate-200 shrink-0">
-                        <Image src={img} alt={item.product_name} fill className="object-cover" />
+                        <Image
+                          src={img}
+                          alt={item.product_name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-slate-900 font-extrabold line-clamp-2">{item.product_name}</p>
+                        <p className="text-slate-900 font-extrabold line-clamp-2">
+                          {item.product_name}
+                        </p>
 
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                           <Chip>
-                            الكمية: <span className="ms-1 text-slate-900">{item.quantity}</span>
+                            الكمية:{" "}
+                            <span className="ms-1 text-slate-900">
+                              {item.quantity}
+                            </span>
                           </Chip>
                           <Chip>
-                            سعر الوحدة: <span className="ms-1 text-slate-900">{item.price}</span>
+                            سعر الوحدة:{" "}
+                            <span className="ms-1 text-slate-900">
+                              {item.price}
+                            </span>
                           </Chip>
                           {subtotal !== null && (
                             <Chip>
-                              الإجمالي: <span className="ms-1 text-slate-900">{subtotal.toFixed(2)}</span>
+                              الإجمالي:{" "}
+                              <span className="ms-1 text-slate-900">
+                                {subtotal.toFixed(2)}
+                              </span>
                             </Chip>
                           )}
                         </div>
@@ -374,14 +439,25 @@ export default function OrderDetailsPage({ orderId }: Props) {
                         {/* Options */}
                         {opts.length > 0 && (
                           <div className="mt-3">
-                            <p className="text-xs font-extrabold text-slate-500 mb-2">الخيارات:</p>
+                            <p className="text-xs font-extrabold text-slate-500 mb-2">
+                              الخيارات:
+                            </p>
                             <div className="flex flex-wrap gap-2">
                               {opts.map((o, i) => {
-                                if (typeof o === "string") return <Chip key={i}>{o}</Chip>;
+                                if (typeof o === "string")
+                                  return <Chip key={i}>{o}</Chip>;
 
-                                const name = (o as any).option_name ?? (o as any).name ?? "";
-                                const value = (o as any).option_value ?? (o as any).value ?? "";
-                                const label = [name, value].filter(Boolean).join(": ");
+                                const name =
+                                  (o as any).option_name ??
+                                  (o as any).name ??
+                                  "";
+                                const value =
+                                  (o as any).option_value ??
+                                  (o as any).value ??
+                                  "";
+                                const label = [name, value]
+                                  .filter(Boolean)
+                                  .join(": ");
                                 return <Chip key={i}>{label || "—"}</Chip>;
                               })}
                             </div>
@@ -399,7 +475,8 @@ export default function OrderDetailsPage({ orderId }: Props) {
               <div className="mt-4 md:rounded-2xl rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 flex items-center gap-2">
                 <SlLocationPin className="text-slate-700" />
                 <p className="text-slate-700 font-extrabold text-sm">
-                  عنوان التوصيل: <span className="mx-1 text-slate-900">{addressText}</span>
+                  عنوان التوصيل:{" "}
+                  <span className="mx-1 text-slate-900">{addressText}</span>
                 </p>
               </div>
             )}
@@ -407,11 +484,15 @@ export default function OrderDetailsPage({ orderId }: Props) {
 
           {/* Progress Card */}
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-slate-900 font-extrabold text-lg mb-4">تتبع الطلب</p>
+            <p className="text-slate-900 font-extrabold text-lg mb-4">
+              تتبع الطلب
+            </p>
 
             {order.status === "cancelled" ? (
               <div className="md:rounded-2xl rounded-lg border border-rose-200 bg-rose-50 px-4 py-3">
-                <p className="font-extrabold text-rose-800">لا يمكن متابعة التقدم لأن الطلب ملغي.</p>
+                <p className="font-extrabold text-rose-800">
+                  لا يمكن متابعة التقدم لأن الطلب ملغي.
+                </p>
               </div>
             ) : (
               <OrderProgress steps={steps} currentStep={currentStep} />
@@ -427,7 +508,9 @@ export default function OrderDetailsPage({ orderId }: Props) {
               <div className="w-11 h-11 md:rounded-2xl rounded-lg bg-blue-50 text-blue-900 flex items-center justify-center">
                 <GoChecklist className="w-6 h-6" />
               </div>
-              <p className="text-slate-900 font-extrabold text-lg">ملخص الطلب</p>
+              <p className="text-slate-900 font-extrabold text-lg">
+                ملخص الطلب
+              </p>
             </div>
 
             <div className="mt-4 space-y-3 text-slate-700 font-extrabold">
@@ -441,7 +524,9 @@ export default function OrderDetailsPage({ orderId }: Props) {
               <div className="flex items-center justify-between">
                 <p className="text-slate-500">الإجمالي النهائي</p>
                 {/* formatted_total already has currency */}
-                <p className="text-slate-900 text-lg">{order.formatted_total}</p>
+                <p className="text-slate-900 text-lg">
+                  {order.formatted_total}
+                </p>
               </div>
             </div>
           </div>
@@ -455,10 +540,14 @@ export default function OrderDetailsPage({ orderId }: Props) {
 
               <div className="min-w-0">
                 <p className="text-slate-900 font-extrabold">طريقة الدفع</p>
-                <p className="text-slate-600 font-bold mt-1">{order.payment_method_label}</p>
+                <p className="text-slate-600 font-bold mt-1">
+                  {order.payment_method_label}
+                </p>
 
                 <div className="mt-2">
-                  <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[12px] font-extrabold ${pay.cls}`}>
+                  <span
+                    className={`inline-flex items-center rounded-full border px-3 py-1 text-[12px] font-extrabold ${pay.cls}`}
+                  >
                     {pay.label}
                   </span>
                 </div>
@@ -480,21 +569,30 @@ export default function OrderDetailsPage({ orderId }: Props) {
                   <div className="mt-2 space-y-1 text-sm font-bold text-slate-700">
                     <div className="flex justify-between gap-3">
                       <span className="text-slate-500">الاسم</span>
-                      <span className="text-slate-900">{order.full_address.full_name || "—"}</span>
+                      <span className="text-slate-900">
+                        {order.full_address.full_name || "—"}
+                      </span>
                     </div>
                     <div className="flex justify-between gap-3">
                       <span className="text-slate-500">الهاتف</span>
-                      <span className="text-slate-900">{order.full_address.phone || "—"}</span>
+                      <span className="text-slate-900">
+                        {order.full_address.phone || "—"}
+                      </span>
                     </div>
                     <div className="flex justify-between gap-3">
                       <span className="text-slate-500">النوع</span>
-                      <span className="text-slate-900">{order.full_address.type || "—"}</span>
+                      <span className="text-slate-900">
+                        {order.full_address.type || "—"}
+                      </span>
                     </div>
 
                     <div className="h-px bg-slate-200 my-2" />
 
                     <p className="text-slate-600 font-bold leading-relaxed">
-                      {buildFullAddress(order.full_address, order.shipping_address) || "لا يوجد عنوان"}
+                      {buildFullAddress(
+                        order.full_address,
+                        order.shipping_address,
+                      ) || "لا يوجد عنوان"}
                     </p>
                   </div>
                 ) : (
@@ -509,14 +607,25 @@ export default function OrderDetailsPage({ orderId }: Props) {
           {/* User (mobile) */}
           {order.user && (
             <div className="sm:hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-slate-900 font-extrabold mb-3">بيانات المستخدم</p>
+              <p className="text-slate-900 font-extrabold mb-3">
+                بيانات المستخدم
+              </p>
               <div className="flex items-center gap-3">
                 <div className="relative w-12 h-12 md:rounded-2xl rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
-                  <Image src={order.user.image || "/images/not.jpg"} alt={order.user.name} fill className="object-cover" />
+                  <Image
+                    src={order.user.image || "/images/not.jpg"}
+                    alt={order.user.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <div>
-                  <p className="font-extrabold text-slate-900">{order.user.name}</p>
-                  <p className="text-sm font-bold text-slate-600">{order.user.email}</p>
+                  <p className="font-extrabold text-slate-900">
+                    {order.user.name}
+                  </p>
+                  <p className="text-sm font-bold text-slate-600">
+                    {order.user.email}
+                  </p>
                 </div>
               </div>
             </div>

@@ -2801,7 +2801,7 @@ const StickerForm = forwardRef(function StickerForm(
                       <div className="flex items-center justify-between gap-3 w-full text-xs">
                         <span className="font-medium">{qty} قطعة</span>
                         <span className="text-xs font-black text-slate-700">
-                          {money(showTotal)} ر.س
+                          {money(showTotal)} ج.م
                         </span>
                       </div>
                     </MenuItem>

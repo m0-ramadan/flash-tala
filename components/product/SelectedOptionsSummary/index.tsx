@@ -25,8 +25,12 @@ export function SelectedOptionsSummary({
     selectedOptions.material !== "اختر" ||
     selectedOptions.printing_method !== "اختر" ||
     (selectedOptions.print_locations?.length ?? 0) > 0 ||
-    Object.values(selectedOptions.optionGroups || {}).some((v) => v !== "اختر") ||
-    Object.values(selectedOptions.optionChildren || {}).some((v) => v !== "اختر");
+    Object.values(selectedOptions.optionGroups || {}).some(
+      (v) => v !== "اختر",
+    ) ||
+    Object.values(selectedOptions.optionChildren || {}).some(
+      (v) => v !== "اختر",
+    );
 
   if (!anySelected) return null;
 
@@ -52,52 +56,65 @@ export function SelectedOptionsSummary({
           {selectedOptions.size !== "اختر" && (
             <OptChip label="المقاس" value={selectedOptions.size} />
           )}
-          
+
           {!!selectedOptions.size_quantity && (
-            <OptChip label="كمية المقاس" value={`${selectedOptions.size_quantity}`} />
+            <OptChip
+              label="كمية المقاس"
+              value={`${selectedOptions.size_quantity}`}
+            />
           )}
-          
+
           {selectedOptions.color !== "اختر" && (
             <OptChip label="اللون" value={selectedOptions.color} />
           )}
-          
+
           {selectedOptions.material !== "اختر" && (
             <OptChip label="الخامة" value={selectedOptions.material} />
           )}
-          
+
           {selectedOptions.printing_method !== "اختر" && (
-            <OptChip label="طريقة الطباعة" value={selectedOptions.printing_method} />
+            <OptChip
+              label="طريقة الطباعة"
+              value={selectedOptions.printing_method}
+            />
           )}
-          
+
           {(selectedOptions.print_locations?.length ?? 0) > 0 && (
-            <OptChip label="مكان الطباعة" value={selectedOptions.print_locations.join("، ")} />
+            <OptChip
+              label="مكان الطباعة"
+              value={selectedOptions.print_locations.join("، ")}
+            />
           )}
-          
+
           {Object.entries(selectedOptions.optionGroups || {}).map(
-            ([k, v]) => v !== "اختر" && <OptChip key={k} label={k} value={v} />
+            ([k, v]) => v !== "اختر" && <OptChip key={k} label={k} value={v} />,
           )}
-          
-          {Object.entries(selectedOptions.optionChildren || {}).map(([k, v]) => {
-            if (v !== "اختر") {
-              const [parentGroup] = k.split("::");
-              return <OptChip key={k} label={`تفاصيل ${parentGroup}`} value={v} />;
-            }
-            return null;
-          })}
+
+          {Object.entries(selectedOptions.optionChildren || {}).map(
+            ([k, v]) => {
+              if (v !== "اختر") {
+                const [parentGroup] = k.split("::");
+                return (
+                  <OptChip key={k} label={`تفاصيل ${parentGroup}`} value={v} />
+                );
+              }
+              return null;
+            },
+          )}
         </div>
 
         {/* price breakdown */}
         <div className="mt-4 md:rounded-2xl rounded-lg border border-slate-200 bg-slate-50 p-4">
           <div className="flex items-center justify-between text-sm font-extrabold text-slate-700">
             <span>السعر الأساسي (المقاس × الكمية)</span>
-            <span>{basePrice.toFixed(2)} ر.س</span>
+            <span>{basePrice.toFixed(2)} ج.م</span>
           </div>
 
           <div className="h-px bg-slate-200 my-3" />
-          
+
           <div className="flex items-center justify-between text-base font-black text-slate-900">
             <span>الإجمالي</span>
-            <span>{displayTotal.toFixed(2)} ر.س</span>
+            <span>{displayTotal.toFixed(2)} ج.م</span>
           </div>
         </div>
       </motion.div>

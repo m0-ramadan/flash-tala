@@ -11,14 +11,13 @@ interface BottomBarProps {
   onAddToCart: () => void;
 }
 
-export function BottomBar({ 
-  product, 
-  displayTotal, 
-  showMissingBadge, 
-  uploadingDesign, 
-  onAddToCart 
+export function BottomBar({
+  product,
+  displayTotal,
+  showMissingBadge,
+  uploadingDesign,
+  onAddToCart,
 }: BottomBarProps) {
-  
   // ✅ إضافة useEffect لتتبع التغييرات
   useEffect(() => {
     console.log("BottomBar received new displayTotal:", displayTotal);
@@ -44,11 +43,11 @@ export function BottomBar({
               {/* Left */}
               <div className="max-md:w-full flex items-center gap-3 min-w-0">
                 <div className="relative w-14 h-14 md:w-16 md:h-16 md:rounded-2xl rounded-lg overflow-hidden bg-slate-100 ring-1 ring-slate-200 shrink-0">
-                  <Image 
-                    src={product.image || "/images/not.jpg"} 
-                    alt={product.name} 
-                    fill 
-                    className="object-cover" 
+                  <Image
+                    src={product.image || "/images/not.jpg"}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
                   />
                 </div>
 
@@ -58,7 +57,9 @@ export function BottomBar({
                   </p>
 
                   <p className="text-[12px] text-slate-500 font-bold mt-0.5 line-clamp-1">
-                    {product?.delivery_time?.estimated ? `التوصيل المتوقع: ${product.delivery_time.estimated}` : ""}
+                    {product?.delivery_time?.estimated
+                      ? `التوصيل المتوقع: ${product.delivery_time.estimated}`
+                      : ""}
                   </p>
                 </div>
               </div>
@@ -67,24 +68,32 @@ export function BottomBar({
               <div className="flex max-md:w-full max-md:justify-between items-center gap-3">
                 <div className="hidden sm:flex flex-col items-end">
                   <div className="flex items-center gap-2 justify-end">
-                    <p className="text-[12px] text-slate-500 font-extrabold">السعر شامل الضريبة</p>
+                    <p className="text-[12px] text-slate-500 font-extrabold">
+                      السعر شامل الضريبة
+                    </p>
                   </div>
 
                   <div className="mt-0.5 flex items-end gap-2 justify-end">
                     <p className="text-xl md:text-2xl font-black text-slate-900 leading-none">
                       {displayTotal.toFixed(2)}
                     </p>
-                    <span className="text-sm font-extrabold text-slate-700">ر.س</span>
+                    <span className="text-sm font-extrabold text-slate-700">
+                      ج.م
+                    </span>
                   </div>
                 </div>
 
                 <div className="sm:hidden flex flex-col items-end">
-                  <p className="text-[10px] text-slate-500 font-extrabold">السعر شامل الضريبة</p>
+                  <p className="text-[10px] text-slate-500 font-extrabold">
+                    السعر شامل الضريبة
+                  </p>
                   <div className="flex items-end gap-1">
                     <p className="text-lg font-black text-slate-900 leading-none">
                       {displayTotal.toFixed(2)}
                     </p>
-                    <span className="text-[12px] font-extrabold text-slate-700">ر.س</span>
+                    <span className="text-[12px] font-extrabold text-slate-700">
+                      ج.م
+                    </span>
                   </div>
                 </div>
 

@@ -16,11 +16,19 @@ interface SizeTierSelectorProps {
   showValidation: boolean;
 }
 
-export function SizeTierSelector({ apiData, showValidation }: SizeTierSelectorProps) {
-  const { size, sizeTierId, handleTierChange, sizeTierUnit, sizeTierTotal } = useStickerForm();
+export function SizeTierSelector({
+  apiData,
+  showValidation,
+}: SizeTierSelectorProps) {
+  const { size, sizeTierId, handleTierChange, sizeTierUnit, sizeTierTotal } =
+    useStickerForm();
 
   const selectedSizeObj = useMemo(() => {
-    return (apiData?.sizes || []).find((s: any) => String(s?.name).trim() === String(size).trim()) || null;
+    return (
+      (apiData?.sizes || []).find(
+        (s: any) => String(s?.name).trim() === String(size).trim(),
+      ) || null
+    );
   }, [apiData, size]);
 
   const sizeTiers = useMemo(() => {
@@ -35,7 +43,12 @@ export function SizeTierSelector({ apiData, showValidation }: SizeTierSelectorPr
 
   return (
     <Box>
-      <FormControl fullWidth size="small" required error={showValidation && needSizeTier && !sizeTierId}>
+      <FormControl
+        fullWidth
+        size="small"
+        required
+        error={showValidation && needSizeTier && !sizeTierId}
+      >
         <InputLabel>الكمية</InputLabel>
         <Select
           value={sizeTierId ? String(sizeTierId) : "اختر"}
@@ -58,7 +71,9 @@ export function SizeTierSelector({ apiData, showValidation }: SizeTierSelectorPr
               <MenuItem key={t.id} value={String(t.id)}>
                 <div className="flex items-center justify-between gap-3 w-full">
                   <span>{qty} قطعة</span>
-                  <span className="text-xs font-black text-slate-700">{Number(showTotal).toFixed(2)} ر.س</span>
+                  <span className="text-xs font-black text-slate-700">
+                    {Number(showTotal).toFixed(2)} ج.م
+                  </span>
                 </div>
               </MenuItem>
             );
@@ -66,12 +81,15 @@ export function SizeTierSelector({ apiData, showValidation }: SizeTierSelectorPr
         </Select>
 
         {showValidation && needSizeTier && !sizeTierId && (
-          <FormHelperText className="text-red-500 text-xs">يجب اختيار كمية المقاس</FormHelperText>
+          <FormHelperText className="text-red-500 text-xs">
+            يجب اختيار كمية المقاس
+          </FormHelperText>
         )}
 
         {!!sizeTierId && (
           <FormHelperText className="text-slate-600 text-xs">
-            سعر الوحدة: {num(sizeTierUnit).toFixed(2)} — الإجمالي: {num(sizeTierTotal).toFixed(2)}
+            سعر الوحدة: {num(sizeTierUnit).toFixed(2)} — الإجمالي:{" "}
+            {num(sizeTierTotal).toFixed(2)}
           </FormHelperText>
         )}
       </FormControl>

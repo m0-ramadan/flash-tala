@@ -12,12 +12,19 @@ type SelectedOpt = { option_name: string; option_value: string };
 
 const n = (v: any) => {
   const x =
-    typeof v === "string" ? Number(v) : typeof v === "number" ? v : Number(v ?? 0);
+    typeof v === "string"
+      ? Number(v)
+      : typeof v === "number"
+        ? v
+        : Number(v ?? 0);
   return Number.isFinite(x) ? x : 0;
 };
 
 const money = (v: number) =>
-  v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  v.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
 const parseSelectedOptions = (raw: any): SelectedOpt[] => {
   if (!raw) return [];
@@ -46,11 +53,13 @@ function computePricing(item: AnyObj) {
   let sizeTierUnit: number | null = null;
   const sizes = Array.isArray(p?.sizes) ? p.sizes : [];
   const selected = parseSelectedOptions(item?.selected_options).find((o) =>
-    String(o.option_name || "").includes("المقاس")
+    String(o.option_name || "").includes("المقاس"),
   )?.option_value;
 
   if (sizes.length && selected) {
-    const sizeObj = sizes.find((s: any) => String(s.name).trim() === String(selected).trim());
+    const sizeObj = sizes.find(
+      (s: any) => String(s.name).trim() === String(selected).trim(),
+    );
     if (sizeObj?.tiers?.length) {
       const tiers = [...sizeObj.tiers]
         .map((t: any) => ({ q: n(t.quantity), unit: n(t.price_per_unit) }))
@@ -75,7 +84,7 @@ function computePricing(item: AnyObj) {
     const match = productOptions.find(
       (x: any) =>
         String(x.option_name).trim() === name &&
-        String(x.option_value).trim() === value
+        String(x.option_value).trim() === value,
     );
     if (match) extra += n(match.additional_price);
 
@@ -120,10 +129,19 @@ export default function CheckoutSummary() {
   const computed = useMemo(() => {
     const items = (Array.isArray(cart) ? cart : []).map((it: AnyObj) => {
       const pr = computePricing(it);
-      return { ...it, _unit: pr.unit, _line: pr.line, _qty: pr.qty, _opts: pr.selectedOptions };
+      return {
+        ...it,
+        _unit: pr.unit,
+        _line: pr.line,
+        _qty: pr.qty,
+        _opts: pr.selectedOptions,
+      };
     });
 
-    const subtotal = items.reduce((acc: number, it: any) => acc + n(it._line), 0);
+    const subtotal = items.reduce(
+      (acc: number, it: any) => acc + n(it._line),
+      0,
+    );
     const total = subtotal; // لو عندك رسوم/خصم هنا ضيفها
 
     return { items, subtotal, total };
@@ -170,15 +188,24 @@ export default function CheckoutSummary() {
                   className="flex gap-3 p-4 rounded-3xl border border-slate-200 bg-white"
                 >
                   <div className="relative w-16 h-16 shrink-0 md:rounded-2xl rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
-                    <Image src={imageSrc} alt={name} fill sizes="64px" className="object-cover" />
+                    <Image
+                      src={imageSrc}
+                      alt={name}
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                    />
                   </div>
 
                   <div className="flex-1 text-sm">
                     <p className="font-extrabold text-slate-900">{name}</p>
-                    <p className="text-slate-500 font-semibold">الكمية: {item._qty}</p>
+                    <p className="text-slate-500 font-semibold">
+                      الكمية: {item._qty}
+                    </p>
 
                     <p className="font-extrabold text-slate-900 mt-1">
-                      {money(n(item._line))} <span className="text-xs text-slate-600">ر.س</span>
+                      {money(n(item._line))}{" "}
+                      <span className="text-xs text-slate-600">ج.م</span>
                     </p>
 
                     {Array.isArray(item._opts) && item._opts.length > 0 && (
@@ -200,7 +227,7 @@ export default function CheckoutSummary() {
                     )}
 
                     <p className="text-xs text-slate-500 font-semibold mt-2">
-                      سعر القطعة: {money(n(item._unit))} ر.س
+                      سعر القطعة: {money(n(item._unit))} ج.م
                     </p>
                   </div>
                 </div>
@@ -209,7 +236,9 @@ export default function CheckoutSummary() {
 
             {computed.items.length === 0 && (
               <div className="p-4 rounded-3xl border border-slate-200 bg-white text-center">
-                <p className="text-slate-600 font-extrabold">لا توجد عناصر في السلة</p>
+                <p className="text-slate-600 font-extrabold">
+                  لا توجد عناصر في السلة
+                </p>
               </div>
             )}
           </motion.div>

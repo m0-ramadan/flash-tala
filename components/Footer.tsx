@@ -343,21 +343,24 @@ export default function Footer() {
               {!isEmptyValue(email) && (
                 <div className="flex items-center gap-2">
                   <FaEnvelope className="opacity-80" />
-                  <span className="break-all">{String(email)}</span>
+                  <span className="break-all">info@flashy-card.com</span>
                 </div>
               )}
 
               {!isEmptyValue(phone) && (
                 <div className="flex items-center gap-2">
                   <FaPhone className="opacity-80" />
-                  <span className="tabular-nums">{String(phone)}</span>
+                  <span className="tabular-nums">+201040006424</span>
                 </div>
               )}
 
               {!isEmptyValue(address) && (
                 <div className="flex items-start gap-2">
                   <FaMapMarkerAlt className="opacity-80 mt-0.5" />
-                  <span className="leading-relaxed">{String(address)}</span>
+                  <span className="leading-relaxed">
+                    {" "}
+                    مصر , محافظة الشرقية{" "}
+                  </span>
                 </div>
               )}
 

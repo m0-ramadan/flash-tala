@@ -709,7 +709,7 @@ export default function OrderCompletePage() {
 
                           <p className="mt-2 font-extrabold text-slate-900">
                             {it.price}{" "}
-                            <span className="text-xs text-slate-600">ر.س</span>
+                            <span className="text-xs text-slate-600">ج.م</span>
                           </p>
 
                           {opts.length > 0 && (
