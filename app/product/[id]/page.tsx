@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -26,13 +32,17 @@ import { Reviews } from "@/components/product/Reviews";
 import { BottomBar } from "@/components/product/BottomBar";
 import { SelectedOptionsSummary } from "@/components/product/SelectedOptionsSummary";
 
-import { TabKey, SelectedOptions, StickerFormHandle } from "@/Types/product.types";
-import { 
-  num, 
-  computeSizeBaseTotal, 
-  buildSelectedOptionsWithPrice, 
+import {
+  TabKey,
+  SelectedOptions,
+  StickerFormHandle,
+} from "@/Types/product.types";
+import {
+  num,
+  computeSizeBaseTotal,
+  buildSelectedOptionsWithPrice,
   buildIdsPayload,
-  validateOptions 
+  validateOptions,
 } from "@/utils/productHelpers";
 
 const fadeUp: any = {
@@ -40,12 +50,40 @@ const fadeUp: any = {
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
 };
 
+const normalizeCurrencyText = (value: string) =>
+  value
+    .replace(/\s*ريال\s*/g, " جنيه مصري ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const sanitizeCurrencyInData = <T,>(data: T): T => {
+  if (typeof data === "string") {
+    return normalizeCurrencyText(data) as T;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map((item) => sanitizeCurrencyInData(item)) as T;
+  }
+
+  if (data && typeof data === "object") {
+    return Object.fromEntries(
+      Object.entries(data as Record<string, any>).map(([key, value]) => [
+        key,
+        sanitizeCurrencyInData(value),
+      ]),
+    ) as T;
+  }
+
+  return data;
+};
+
 export default function ProductPageClient() {
   const { id } = useParams();
   const productId = id as string;
 
   const { authToken: token, user, userId } = useAuth() as any;
-  const currentUserId: number | null = typeof userId === "number" ? userId : user?.id ?? null;
+  const currentUserId: number | null =
+    typeof userId === "number" ? userId : (user?.id ?? null);
 
   const { addToCart } = useCart();
   const { homeData } = useAppContext();
@@ -91,7 +129,7 @@ export default function ProductPageClient() {
   const [forceUpdate, setForceUpdate] = useState(0);
 
   const handleForceUpdate = useCallback(() => {
-    setForceUpdate(prev => prev + 1);
+    setForceUpdate((prev) => prev + 1);
   }, []);
 
   // ✅ مراقبة تغييرات selectedOptions
@@ -101,7 +139,7 @@ export default function ProductPageClient() {
       flatOptionsTotal: selectedOptions.flatOptionsTotal,
       size_total_price: selectedOptions.size_total_price,
       optionGroups: selectedOptions.optionGroups,
-      optionChildren: selectedOptions.optionChildren
+      optionChildren: selectedOptions.optionChildren,
     });
   }, [selectedOptions]);
 
@@ -124,12 +162,12 @@ export default function ProductPageClient() {
         if (!res.ok) throw new Error("not_found");
 
         const json = await res.json();
-        const prod = json?.data ?? null;
+        const prod = sanitizeCurrencyInData(json?.data ?? null);
 
         if (!mounted) return;
 
         setProduct(prod);
-        setApiData(json?.data);
+        setApiData(prod);
 
         // Seed reviews from product details
         if (Array.isArray(prod?.reviews)) {
@@ -150,11 +188,17 @@ export default function ProductPageClient() {
           });
         }
 
-        const saved = JSON.parse(localStorage.getItem("favorites") || "[]") as number[];
+        const saved = JSON.parse(
+          localStorage.getItem("favorites") || "[]",
+        ) as number[];
         setIsFavorite(!!prod && saved.includes(prod.id));
       } catch (e: any) {
         if (!mounted) return;
-        setErrorMsg(e?.message === "not_found" ? "المنتج غير موجود" : "حدث خطأ أثناء تحميل المنتج");
+        setErrorMsg(
+          e?.message === "not_found"
+            ? "المنتج غير موجود"
+            : "حدث خطأ أثناء تحميل المنتج",
+        );
       } finally {
         if (mounted) setLoading(false);
       }
@@ -179,13 +223,17 @@ export default function ProductPageClient() {
       params.set("sort_direction", "desc");
       params.set("page", String(reviewsPage));
 
-      const res = await fetch(`${API_URL}/reviews/product/${productId}?${params.toString()}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `${API_URL}/reviews/product/${productId}?${params.toString()}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          cache: "no-store",
+        },
+      );
 
       const json = await res.json();
-      if (!res.ok || !json.status) throw new Error(json.message || "فشل تحميل التقييمات");
+      if (!res.ok || !json.status)
+        throw new Error(json.message || "فشل تحميل التقييمات");
 
       setReviewsData(json.data);
     } catch (e: any) {
@@ -205,11 +253,12 @@ export default function ProductPageClient() {
     if (!apiData) return false;
 
     return (
-      Array.isArray(apiData?.sizes) && apiData.sizes.length > 0 ||
-      Array.isArray(apiData?.colors) && apiData.colors.length > 0 ||
-      Array.isArray(apiData?.materials) && apiData.materials.length > 0 ||
-      Array.isArray(apiData?.options) && apiData.options.length > 0 ||
-      Array.isArray(apiData?.printing_methods) && apiData.printing_methods.length > 0 ||
+      (Array.isArray(apiData?.sizes) && apiData.sizes.length > 0) ||
+      (Array.isArray(apiData?.colors) && apiData.colors.length > 0) ||
+      (Array.isArray(apiData?.materials) && apiData.materials.length > 0) ||
+      (Array.isArray(apiData?.options) && apiData.options.length > 0) ||
+      (Array.isArray(apiData?.printing_methods) &&
+        apiData.printing_methods.length > 0) ||
       Array.isArray(apiData?.print_locations)
     );
   }, [apiData]);
@@ -238,34 +287,58 @@ export default function ProductPageClient() {
   // ✅ حساب سعر المقاس
   const basePrice = useMemo(() => {
     // استخدام size_total_price إذا كان موجوداً
-    if (selectedOptions.size_total_price && selectedOptions.size_total_price > 0) {
-      console.log("🔢 Using size_total_price:", selectedOptions.size_total_price);
+    if (
+      selectedOptions.size_total_price &&
+      selectedOptions.size_total_price > 0
+    ) {
+      console.log(
+        "🔢 Using size_total_price:",
+        selectedOptions.size_total_price,
+      );
       return selectedOptions.size_total_price;
     }
-    
+
     // وإلا استخدم computeSizeBaseTotal
     const total = computeSizeBaseTotal(selectedOptions);
-    console.log("🔢 Base price computed:", total, "from options:", selectedOptions);
+    console.log(
+      "🔢 Base price computed:",
+      total,
+      "from options:",
+      selectedOptions,
+    );
     return total > 0 ? total : 0;
   }, [selectedOptions]);
 
   // ✅ حساب سعر الإضافات (الخيارات)
   const extrasTotal = useMemo(() => {
     if (!apiData) return 0;
-    
+
     // ✅ إذا كان في flatOptions، استخدم flatOptionsTotal مباشرة
-    if (selectedOptions.flatOptionsTotal !== undefined && selectedOptions.flatOptionsTotal > 0) {
-      console.log("💰 Using flatOptionsTotal:", selectedOptions.flatOptionsTotal);
+    if (
+      selectedOptions.flatOptionsTotal !== undefined &&
+      selectedOptions.flatOptionsTotal > 0
+    ) {
+      console.log(
+        "💰 Using flatOptionsTotal:",
+        selectedOptions.flatOptionsTotal,
+      );
       return selectedOptions.flatOptionsTotal;
     }
-    
+
     // ✅ إذا كان في flatOptions، احسب المجموع منها
     if (selectedOptions.flatOptions && selectedOptions.flatOptions.length > 0) {
-      const total = selectedOptions.flatOptions.reduce((sum, opt) => sum + (opt.price || 0), 0);
-      console.log("💰 Extras total from flatOptions array:", total, selectedOptions.flatOptions);
+      const total = selectedOptions.flatOptions.reduce(
+        (sum, opt) => sum + (opt.price || 0),
+        0,
+      );
+      console.log(
+        "💰 Extras total from flatOptions array:",
+        total,
+        selectedOptions.flatOptions,
+      );
       return total;
     }
-    
+
     // ✅ غير ذلك استخدم الدالة القديمة
     console.log("⚠️ Using old method for extras total");
     const selected = buildSelectedOptionsWithPrice(apiData, selectedOptions);
@@ -277,19 +350,27 @@ export default function ProductPageClient() {
   // ✅ حساب السعر الإجمالي
   const displayTotal = useMemo(() => {
     const total = basePrice + extrasTotal;
-    console.log("💰 Display total:", total, "= base:", basePrice, "+ extras:", extrasTotal);
+    console.log(
+      "💰 Display total:",
+      total,
+      "= base:",
+      basePrice,
+      "+ extras:",
+      extrasTotal,
+    );
     console.log("📊 Price breakdown:", {
       basePrice,
       extrasTotal,
       total,
       flatOptions: selectedOptions.flatOptions,
-      size_total_price: selectedOptions.size_total_price
+      size_total_price: selectedOptions.size_total_price,
     });
     return total > 0 ? total : 0;
   }, [basePrice, extrasTotal, selectedOptions]);
 
   const currentValidation = validateOptions(selectedOptions, apiData);
-  const showMissingBadge = showValidation && hasOptions && !currentValidation.isValid;
+  const showMissingBadge =
+    showValidation && hasOptions && !currentValidation.isValid;
 
   const handleAddToCart = async () => {
     setShowValidation(true);
@@ -297,7 +378,7 @@ export default function ProductPageClient() {
     const opts = await getSelectedOptions();
     console.log("📦 Options to validate:", opts);
     console.log("📦 API Data:", apiData);
-    
+
     const validation = validateOptions(opts, apiData);
     console.log("📦 Validation result:", validation);
 
@@ -386,7 +467,9 @@ export default function ProductPageClient() {
     const newState = !isFavorite;
     setIsFavorite(newState);
 
-    let saved = JSON.parse(localStorage.getItem("favorites") || "[]") as number[];
+    let saved = JSON.parse(
+      localStorage.getItem("favorites") || "[]",
+    ) as number[];
     if (newState) {
       if (!saved.includes(product.id)) saved.push(product.id);
     } else {
@@ -397,7 +480,10 @@ export default function ProductPageClient() {
     try {
       const res = await fetch(`${API_URL}/favorites/toggle`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ product_id: product.id }),
       });
 
@@ -436,7 +522,8 @@ export default function ProductPageClient() {
       });
 
       const json = await res.json();
-      if (!res.ok || !json.status) throw new Error(json.message || "فشل إرسال التقييم");
+      if (!res.ok || !json.status)
+        throw new Error(json.message || "فشل إرسال التقييم");
 
       toast.success("تم إرسال تقييمك ✅");
       setReviewsPage(1);
@@ -459,7 +546,8 @@ export default function ProductPageClient() {
       });
 
       const json = await res.json();
-      if (!res.ok || !json.status) throw new Error(json.message || "فشل حذف التقييم");
+      if (!res.ok || !json.status)
+        throw new Error(json.message || "فشل حذف التقييم");
 
       toast.success("تم حذف التقييم");
       setReviewsPage(1);
@@ -475,9 +563,14 @@ export default function ProductPageClient() {
 
   if (errorMsg || !product) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4" dir="rtl">
+      <div
+        className="min-h-[60vh] flex items-center justify-center px-4"
+        dir="rtl"
+      >
         <div className="max-w-md w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="font-extrabold text-slate-900">{errorMsg || "المنتج غير موجود"}</p>
+          <p className="font-extrabold text-slate-900">
+            {errorMsg || "المنتج غير موجود"}
+          </p>
           <button
             onClick={() => location.reload()}
             className="mt-4 w-full md:rounded-2xl rounded-lg bg-slate-900 text-white py-3 font-extrabold hover:opacity-95 transition"
@@ -492,13 +585,23 @@ export default function ProductPageClient() {
   return (
     <>
       <section className="container pt-8 pb-24" dir="rtl">
-        <motion.div variants={fadeUp} initial="hidden" animate="show" className="mb-4">
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+          className="mb-4"
+        >
           <CustomSeparator proName={product.name} />
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left: Info */}
-          <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-5 lg:col-span-5">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            className="space-y-5 lg:col-span-5"
+          >
             <ProductHeader
               name={product.name}
               isFavorite={isFavorite}
@@ -526,7 +629,9 @@ export default function ProductPageClient() {
                   disabled={!hasOptions}
                   className={[
                     "py-3 font-extrabold transition",
-                    activeTab === "options" ? "bg-[#14213d] text-white" : "bg-white text-slate-800",
+                    activeTab === "options"
+                      ? "bg-[#14213d] text-white"
+                      : "bg-white text-slate-800",
                     !hasOptions ? "opacity-40 cursor-not-allowed" : "",
                   ].join(" ")}
                   onClick={() => hasOptions && setActiveTab("options")}
@@ -537,7 +642,9 @@ export default function ProductPageClient() {
                 <button
                   className={[
                     "py-3 font-extrabold transition",
-                    activeTab === "reviews" ? "bg-[#14213d] text-white" : "bg-white text-slate-800",
+                    activeTab === "reviews"
+                      ? "bg-[#14213d] text-white"
+                      : "bg-white text-slate-800",
                   ].join(" ")}
                   onClick={() => setActiveTab("reviews")}
                 >
@@ -546,8 +653,8 @@ export default function ProductPageClient() {
               </div>
 
               <div className="m-4">
-                {activeTab === "options" && (
-                  hasOptions ? (
+                {activeTab === "options" &&
+                  (hasOptions ? (
                     <StickerForm
                       productId={product.id}
                       productData={apiData}
@@ -560,11 +667,10 @@ export default function ProductPageClient() {
                     <div className="md:rounded-2xl rounded-lg border border-slate-200 bg-slate-50 p-4 text-slate-600 font-bold">
                       لا توجد خيارات لهذا المنتج.
                     </div>
-                  )
-                )}
+                  ))}
 
-                {activeTab === "reviews" && (
-                  reviewsLoading ? (
+                {activeTab === "reviews" &&
+                  (reviewsLoading ? (
                     <ReviewsSkeleton />
                   ) : (
                     <Reviews
@@ -584,8 +690,7 @@ export default function ProductPageClient() {
                       onDeleteReview={deleteReview}
                       onRetry={fetchReviews}
                     />
-                  )
-                )}
+                  ))}
               </div>
             </div>
 
@@ -599,9 +704,17 @@ export default function ProductPageClient() {
           </motion.div>
 
           {/* Right: Gallery */}
-          <motion.div variants={fadeUp} initial="hidden" animate="show" className="lg:col-span-7">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            className="lg:col-span-7"
+          >
             <div className="lg:sticky lg:top-[150px]">
-              <ProductGallery mainImage={product.image} images={product.images} />
+              <ProductGallery
+                mainImage={product.image}
+                images={product.images}
+              />
             </div>
           </motion.div>
         </div>
@@ -610,16 +723,19 @@ export default function ProductPageClient() {
         {product && categories2.length > 0 && (
           <div className="mt-10">
             {(() => {
-              const currentCategory = categories2.find((cat: any) => 
-                cat.products?.some((p: any) => p.id === product.id)
+              const currentCategory = categories2.find((cat: any) =>
+                cat.products?.some((p: any) => p.id === product.id),
               );
-              const base = currentCategory?.products?.filter((p: any) => p.id !== product.id) || [];
+              const base =
+                currentCategory?.products?.filter(
+                  (p: any) => p.id !== product.id,
+                ) || [];
               const fallback = categories2
                 .flatMap((cat: any) => cat.products || [])
                 .filter((p: any) => p.id !== product.id)
                 .slice(0, 12);
               const list = base.length ? base : fallback;
-              
+
               if (!list.length) return null;
 
               return (
@@ -628,7 +744,12 @@ export default function ProductPageClient() {
                     title="منتجات قد تعجبك"
                     inStock={list}
                     CardComponent={(props: any) => (
-                      <ProductCard {...props} product={product} classNameHome="hidden" className2="hidden" />
+                      <ProductCard
+                        {...props}
+                        product={product}
+                        classNameHome="hidden"
+                        className2="hidden"
+                      />
                     )}
                   />
                 </div>
