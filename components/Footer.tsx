@@ -198,6 +198,7 @@ export default function Footer() {
     { title: "معلومات عنا", href: "/about" },
     { title: "الشروط و الأحكام", href: "/terms" },
     { title: "سياسة الإسترجاع", href: "/returnsPolicy" },
+    { title: "سياسة الشحن", href: "/shippingPolicy" },
     { title: "سياسة الخصوصية", href: "/policy" },
     { title: "الضمان", href: "/warranty" },
     // { title: "أنضم كشريك", href: "/partner" },

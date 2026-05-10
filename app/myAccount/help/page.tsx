@@ -8,7 +8,7 @@ import { TfiMenuAlt } from "react-icons/tfi";
 import { TiMessages } from "react-icons/ti";
 import { FiSearch } from "react-icons/fi";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
-import { BsShieldCheck, BsArrowReturnLeft } from "react-icons/bs";
+import { BsShieldCheck, BsArrowReturnLeft, BsTruck } from "react-icons/bs";
 
 type HelpItem = {
 	href: string;
@@ -94,6 +94,12 @@ export default function Page() {
 			title: "سياسة الاسترجاع",
 			desc: "تعرف على شروط وإجراءات الاسترجاع بسهولة وخطوات التنفيذ.",
 			icon: <BsArrowReturnLeft size={22} />,
+		},
+		{
+			href: "/shippingPolicy",
+			title: "سياسة الشحن",
+			desc: "تعرف على مدة التجهيز والتوصيل ورسوم الشحن ومتابعة الطلب.",
+			icon: <BsTruck size={22} />,
 		},
 		{
 			href: "/policy",
